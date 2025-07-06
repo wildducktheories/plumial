@@ -114,6 +114,17 @@ This creates a natural correspondence between the binary structure and polynomia
 - Term u⁰ · v² = v²: 2nd path bit (bit 2) has value 1, position 2
 - The exponents directly encode: v^(position) for each set bit
 
+ Path bits are counted from the right (LSB), not the left per typical conventions for representing integers as strings of binary digits. In the sigma polynomial σ\ :sub:`p`\(u,v):
+
+- **v exponent = bit position** (counted from right, starting at 0)
+- **u exponent = path bit index** (count of this bit among all path bits)
+
+For example, in u + v²:
+- The first path bit is at position 0 (rightmost), giving term u¹ · v⁰ = u
+- The second path bit is at position 2, giving term u⁰ · v² = v²
+
+This right-to-left bit counting matches the mathematical convention and ensures the exponents directly encode the structural relationships in the polynomial representation.
+
 **Reconstruction Identity**:
 
 .. math::
