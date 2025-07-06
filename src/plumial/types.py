@@ -5,7 +5,8 @@ This module provides common type aliases and protocols used throughout
 the library for better type safety and code readability.
 """
 
-from typing import Protocol, Union, Tuple, Iterator, Optional, Any, Dict, List
+from typing import Any, Dict, Iterator, List, Optional, Protocol, Tuple, Union
+
 import sympy as sy
 
 # Type aliases for common complex types
@@ -59,15 +60,15 @@ CacheInfo = Any
 class PValueProtocol(Protocol):
     """
     Protocol for objects that behave like P-values.
-    
+
     Objects implementing this protocol must provide methods to access
     the p-value and its bit count properties.
     """
-    
+
     def p(self) -> int:
         """Return the p-value as an integer."""
         ...
-    
+
     def n(self) -> int:
         """Return the number of path bits (total bits - 1)."""
         ...
@@ -76,24 +77,26 @@ class PValueProtocol(Protocol):
 class DPolynomialProtocol(Protocol):
     """
     Protocol for objects that behave like D objects.
-    
+
     Objects implementing this protocol must provide methods to access
     polynomial properties and evaluation.
     """
-    
+
     def n(self) -> int:
         """Return the number of path bits."""
         ...
-    
+
     def o(self) -> int:
         """Return the number of odd bits."""
         ...
-    
+
     def e(self) -> int:
         """Return the number of even bits."""
         ...
-    
-    def d(self, g: OptionalNumeric = None, h: OptionalNumeric = None) -> NumericOrSymbolic:
+
+    def d(
+        self, g: OptionalNumeric = None, h: OptionalNumeric = None
+    ) -> NumericOrSymbolic:
         """Evaluate the d-polynomial."""
         ...
 
@@ -101,15 +104,15 @@ class DPolynomialProtocol(Protocol):
 class CacheableProtocol(Protocol):
     """
     Protocol for objects that support caching operations.
-    
+
     Objects implementing this protocol must provide methods to
     manage cache state and retrieve cache information.
     """
-    
+
     def cache_clear(self) -> None:
         """Clear the cache."""
         ...
-    
+
     def cache_info(self) -> CacheInfo:
         """Return cache statistics."""
         ...
@@ -118,23 +121,23 @@ class CacheableProtocol(Protocol):
 class MathematicalExpressionProtocol(Protocol):
     """
     Protocol for objects that can be used in mathematical expressions.
-    
+
     This protocol defines the interface for objects that can participate
     in symbolic mathematical operations.
     """
-    
+
     def __add__(self, other: Any) -> Any:
         """Addition operation."""
         ...
-    
+
     def __sub__(self, other: Any) -> Any:
         """Subtraction operation."""
         ...
-    
+
     def __mul__(self, other: Any) -> Any:
         """Multiplication operation."""
         ...
-    
+
     def __pow__(self, other: Any) -> Any:
         """Exponentiation operation."""
         ...
@@ -144,13 +147,13 @@ class MathematicalExpressionProtocol(Protocol):
 def is_numeric(value: Any) -> bool:
     """
     Check if a value is numeric (int or float).
-    
+
     Args:
         value: Value to check
-        
+
     Returns:
         True if value is int or float, False otherwise
-        
+
     Examples:
         >>> is_numeric(42)
         True
@@ -165,13 +168,13 @@ def is_numeric(value: Any) -> bool:
 def is_symbolic(value: Any) -> bool:
     """
     Check if a value is a SymPy symbolic object.
-    
+
     Args:
         value: Value to check
-        
+
     Returns:
         True if value is a SymPy symbol or expression, False otherwise
-        
+
     Examples:
         >>> import sympy as sy
         >>> x = sy.Symbol('x')
@@ -186,13 +189,13 @@ def is_symbolic(value: Any) -> bool:
 def is_p_value_like(obj: Any) -> bool:
     """
     Check if an object implements the PValueProtocol.
-    
+
     Args:
         obj: Object to check
-        
+
     Returns:
         True if object has p() and n() methods, False otherwise
-        
+
     Examples:
         >>> from plumial import P
         >>> p_obj = P(133)
@@ -201,19 +204,21 @@ def is_p_value_like(obj: Any) -> bool:
         >>> is_p_value_like(42)
         False
     """
-    return hasattr(obj, 'p') and hasattr(obj, 'n') and callable(obj.p) and callable(obj.n)
+    return (
+        hasattr(obj, "p") and hasattr(obj, "n") and callable(obj.p) and callable(obj.n)
+    )
 
 
 def is_d_polynomial_like(obj: Any) -> bool:
     """
     Check if an object implements the DPolynomialProtocol.
-    
+
     Args:
         obj: Object to check
-        
+
     Returns:
         True if object has required methods, False otherwise
-        
+
     Examples:
         >>> from plumial.core.D import D
         >>> d_obj = D(133)
@@ -222,9 +227,11 @@ def is_d_polynomial_like(obj: Any) -> bool:
         >>> is_d_polynomial_like("not a polynomial")
         False
     """
-    required_methods = ['n', 'o', 'e', 'd']
-    return all(hasattr(obj, method) and callable(getattr(obj, method)) 
-              for method in required_methods)
+    required_methods = ["n", "o", "e", "d"]
+    return all(
+        hasattr(obj, method) and callable(getattr(obj, method))
+        for method in required_methods
+    )
 
 
 # Constants for common mathematical values

@@ -72,7 +72,7 @@ __version__ = "0.1.0"
 __author__ = "Jon Seymour"
 __email__ = "jon@wildducktheories.com"
 
-from .core import P, D
+from .core import D, P
 
 __all__ = [
     "__version__",
