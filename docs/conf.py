@@ -73,3 +73,7 @@ mathjax3_config = {
         'displayMath': [['$$', '$$'], ['\\[', '\\]']]
     }
 }
+
+# -- Options for LaTeX generation
+
+latex_engine = 'lualatex'

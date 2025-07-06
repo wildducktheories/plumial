@@ -36,7 +36,7 @@ P objects provide several polynomial representations:
 
 .. code-block:: python
 
-   # Difference polynomial (symbolic)
+   # d-polynomial (symbolic)
    print(p.d())  # h**5 - g**2
    
    # Evaluate numerically

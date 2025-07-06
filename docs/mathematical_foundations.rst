@@ -73,6 +73,13 @@ The **ur-cycle** is the fundamental cyclic permutation of the lower n\ :sub:`p` 
 The Sigma Polynomial Construction
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. image:: _static/watch-animation.gif
+   :alt: Animated visualization of sigma polynomial construction
+   :align: center
+   :width: 600px
+
+*The sigma polynomial* σ\ :sub:`p`\(u,v) *in action for a very special p-value...*
+
 The sigma polynomial σ\ :sub:`p`\(u,v) encodes the binary path structure:
 
 .. math::
@@ -125,11 +132,15 @@ This creates a natural correspondence between the binary structure and polynomia
    reconstructed = 2**n_p + sigma.subs({S.u: 1, S.v: 2})
    print(reconstructed)  # Returns: 21 (original p-value)
 
+.. note::
+
+   **Mystery of the Animation**: The hypnotic visualization above shows something quite remarkable - a "glitched" Collatz cycle that shouldn't exist according to the standard conjecture. The p-value 281 was chosen for a very cheeky reason... The full revelation of what you're seeing, including the complete cycle enumeration and the mathematical beauty of complex roots of unity, awaits in Chapter 6: Advanced Topics.
+
 Chapter 3: The k Polynomial Transformation
 -------------------------------------------
 
 From u,v to g,h: The k Polynomial
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The k polynomial is derived through the transformation u → g·h, v → h:
 
@@ -315,6 +326,8 @@ A critical distinction for Collatz analysis:
 
    \text{Unforced} \iff \forall p \in \text{cycle}(p_0): x_p(3,2) \bmod 2 = p \bmod 2
 
+**Binary Characterization**: Forced cycles arise if and only if there are adjacent 1's in the binary representation of the p-value. This includes both standard adjacency within the path bits and the special case of adjacency between the highest and lowest path bits (wraparound adjacency in the cyclic ur-cycle structure).
+
 **Mathematical Significance**: Any counterexample to Collatz would be unforced.
 
 **Plumial Implementation**:
@@ -327,6 +340,64 @@ A critical distinction for Collatz analysis:
    # Unforced condition check for cycle(9)
    p9 = P(9)
    all(p.x(3,2) % 2 == p.p() % 2 for p in p9.cycle())  # True
+
+The Glitched Collatz Cycle: Revealing the Animation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**The Mystery Revealed**: Remember the hypnotic animation from Chapter 2? The p-value 281 was chosen for a deliciously cheeky reason - it represents a **glitched Collatz cycle** that challenges our understanding of the 3x+1 conjecture.
+
+.. image:: _static/watch-animation.gif
+   :alt: The glitched Collatz cycle p=281 visualized through complex roots of unity
+   :align: center
+   :width: 500px
+
+*Now you know what you're really seeing:* σ\ :sub:`281`\(u,v) = u² + uv² + v⁴ *evaluated with complex roots of unity.*
+
+**The Complete Cycle**: Here is the full enumeration of cycle(281):
+
+.. code-block:: text
+
+   P(281) glitched Collatz cycle:
+     1. 281 = 100011001  (n=8, o=3, e=5)
+     2. 396 = 110001100
+     3. 326 = 101000110
+     4. 291 = 100100011
+     5. 401 = 110010001
+     6. 456 = 111001000
+     7. 356 = 101100100
+     8. 306 = 100110010
+
+**Why "Glitched"**: This 8-element cycle exists in the (3x+1, x/2) system, yet according to the standard Collatz conjecture, all positive integers should eventually reach the trivial cycle 1→4→2→1. The apparent paradox is explained by the fact that p=281 is an example of a forced cycle, something not permitted by the standard framing of the Collatz conjecture. Forced cycles arise if and only if there are adjacent 1's in the binary representation of the p-value, considering both standard adjacency and the special case of adjacency between the high and low path bits (wraparound adjacency in the cyclic structure).
+
+**The Animation Technique**: The mesmerizing visualization results from:
+
+1. **Complex Roots of Unity**: For p=281 with o\ :sub:`p` = 3 and n\ :sub:`p` = 8, we substitute:
+
+   - u = e^(2πit/3) = cos(2πt/3) + i·sin(2πt/3)  [3rd roots of unity]
+   - v = e^(2πis/8) = cos(πs/4) + i·sin(πs/4)    [8th roots of unity]
+
+   where t and s are interpolated smoothly from 0 to their respective periods.
+
+2. **Polynomial Evaluation**: Computing σ\ :sub:`281`\\(u,v) = u² + uv² + v⁴ in the complex plane
+3. **Smooth Interpolation**: Creating continuous transitions as t ∈ [0,3) and s ∈ [0,8) cycle
+4. **Geometric Patterns**: Each term (u², uv², v⁴) traces its own trajectory, and their sum creates the final hypnotic pattern
+
+**Mathematical Beauty**: The animation reveals how discrete binary patterns (the cycle's bit structures) transform into continuous geometric flows when viewed through the lens of complex analysis. Each point's trajectory reflects the polynomial's mathematical relationships, creating predictable yet hypnotic patterns.
+
+**Verification in Plumial**:
+
+.. code-block:: python
+
+   # Explore the glitched cycle
+   p281 = P(281)
+   cycle = list(p281.cycle())
+
+   print(f"Cycle length: {len(cycle)}")
+   print(f"Sigma polynomial: {p281.uv()}")  # u**2 + u*v**2 + v**4
+
+   # Verify it's truly a cycle in (3,2) system
+   for p in cycle:
+       print(f"{p.p():3d}: forced={p.isforced()}")
 
 Chapter 7: Implementation in Plumial
 ------------------------------------

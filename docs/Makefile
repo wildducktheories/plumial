@@ -28,6 +28,8 @@ serve:
 clean-build:
 	rm -rf _build/
 	$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS)
+	$(SPHINXBUILD) -b latex "$(SOURCEDIR)" "$(BUILDDIR)/latex" $(SPHINXOPTS)
+	cd _build/latex && make
 	@echo "Documentation rebuilt and available at: _build/html/index.html"
 
 notebook:
