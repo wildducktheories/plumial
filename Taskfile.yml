@@ -200,9 +200,18 @@ tasks:
   # GitHub Pages Deployment
   deploy-docs:
     desc: Deploy documentation to GitHub Pages
+    deps: [docs]
     cmds:
-      - echo "GitHub Pages deployment not yet implemented"
-      - echo "This will be added in a future update"
+      - echo "Building documentation for GitHub Pages deployment..."
+      - rm -rf {{.DOCS_BUILD}}/html/.git
+      - cd {{.DOCS_BUILD}}/html && touch .nojekyll
+      - cd {{.DOCS_BUILD}}/html && git init
+      - cd {{.DOCS_BUILD}}/html && git add .
+      - cd {{.DOCS_BUILD}}/html && git commit -m "Deploy documentation to GitHub Pages"
+      - cd {{.DOCS_BUILD}}/html && git branch -M gh-pages
+      - cd {{.DOCS_BUILD}}/html && git remote add origin git@github.com:wildducktheories/plumial.git
+      - cd {{.DOCS_BUILD}}/html && git push -f origin gh-pages
+      - echo "Documentation deployed to GitHub Pages successfully!"
       
   # Quick Development Tasks
   check:
