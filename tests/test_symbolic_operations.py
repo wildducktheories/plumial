@@ -4,6 +4,7 @@ Tests for symbolic operations module.
 
 import pytest
 import sympy as sy
+from plumial.core.P import P
 from plumial.utils.symbolic import (
     # Basic symbols
     g, h, u, v, a, d, k, x, f, m, n, o, e, i, j, p, b, c, r, q,
@@ -16,7 +17,7 @@ from plumial.utils.symbolic import (
     index_symbols, additional_symbols, constants, indexed_symbols, all_symbols,
     # Utility functions
     get_symbol, get_indexed_symbol, substitute_values, create_polynomial_expression,
-    difference_polynomial, uv_to_gh_transform, gh_to_uv_transform, extract_coefficients,
+    uv_to_gh_transform, gh_to_uv_transform, extract_coefficients,
     # Compatibility
     S, SymbolNamespace, symbol_dict, indexed_dict
 )
@@ -199,25 +200,6 @@ def test_create_polynomial_expression():
     print("create_polynomial_expression test passed")
 
 
-def test_difference_polynomial():
-    """Test difference_polynomial function."""
-    # Test basic difference polynomial
-    diff = difference_polynomial(5, 2)
-    expected = h**5 - g**2
-    assert diff == expected
-    
-    # Test with powers of 1
-    diff = difference_polynomial(3, 1)
-    expected = h**3 - g
-    assert diff == expected
-    
-    # Test with zero powers
-    diff = difference_polynomial(0, 0)
-    expected = h**0 - g**0  # 1 - 1 = 0
-    assert diff == 0
-    
-    print("difference_polynomial test passed")
-
 
 def test_uv_to_gh_transform():
     """Test UV to GH transformation."""
@@ -362,12 +344,12 @@ def test_complex_expressions():
     assert not gh_poly.has(v)
     assert gh_poly.has(g) or gh_poly.has(h)
     
-    # Test difference polynomial
-    diff_poly = difference_polynomial(5, 3)
-    assert diff_poly == h**5 - g**3
+    # Test d-polynomial
+    d_poly = P(293).d()
+    assert d_poly == h**5 - g**3
     
-    # Test substitution in difference polynomial
-    result = substitute_values(diff_poly, g=2, h=3)
+    # Test substitution in d-polynomial
+    result = substitute_values(d_poly, g=2, h=3)
     expected = 3**5 - 2**3  # 243 - 8 = 235
     assert result == expected
     
@@ -385,7 +367,6 @@ if __name__ == "__main__":
     test_get_indexed_symbol()
     test_substitute_values()
     test_create_polynomial_expression()
-    test_difference_polynomial()
     test_uv_to_gh_transform()
     test_gh_to_uv_transform()
     test_extract_coefficients()

@@ -4,7 +4,7 @@ Comprehensive tests for the P class (polynomial representations).
 
 import pytest
 import sympy as sy
-from plumial.core.polynomials import P, clear_cache, cache_info
+from plumial.core.P import P, clear_cache, cache_info
 from plumial.utils.symbolic import g, h, u, v
 
 
@@ -50,7 +50,7 @@ def test_p_caching():
     assert p3 is not p1  # Different object after cache clear
 
 
-def test_p_difference_polynomial():
+def test_p_d():
     """Test D class integration."""
     p_obj = P(133)
     
@@ -113,11 +113,11 @@ def test_p_cycle_iteration():
     assert len(set(p_values)) == len(p_values)
     
     # Test with map function
-    p_values_mapped = list(p_obj.cycle(map_func=lambda x: x.p()))
+    p_values_mapped = list(p_obj.cycle(map=lambda x: x.p()))
     assert p_values_mapped == p_values
     
     # Test with filter function
-    odd_objects = list(p_obj.cycle(filter_func=lambda x: x.p() % 2 == 1))
+    odd_objects = list(p_obj.cycle(filter=lambda x: x.p() % 2 == 1))
     assert all(obj.p() % 2 == 1 for obj in odd_objects)
     
     print(f"P(133) cycle: {p_values}")
@@ -453,7 +453,7 @@ if __name__ == "__main__":
     # Run tests individually for debugging
     test_p_class_creation()
     test_p_caching()
-    test_p_difference_polynomial()
+    test_p_d()
     test_p_cycle_navigation()
     test_p_cycle_iteration()
     test_p_uv_polynomial()

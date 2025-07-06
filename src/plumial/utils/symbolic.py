@@ -15,7 +15,7 @@ h = sy.Symbol('h')  # Base parameter (typically h=2)
 
 # Polynomial and mathematical variables
 a = sy.Symbol('a')  # Additive constant parameter
-d = sy.Symbol('d')  # Difference polynomial
+d = sy.Symbol('d')  # d-polynomial
 k = sy.Symbol('k')  # Polynomial coefficient
 x = sy.Symbol('x')  # Variable
 f = sy.Symbol('f')  # Function or factor
@@ -211,27 +211,6 @@ def create_polynomial_expression(powers: Dict[str, int]) -> sy.Expr:
             raise KeyError(f"Unknown symbol name: {name}")
     
     return expr
-
-
-def difference_polynomial(e_power: int, o_power: int) -> sy.Expr:
-    """
-    Create a difference polynomial h^e - g^o.
-    
-    Args:
-        e_power: Power of h (even bits)
-        o_power: Power of g (odd bits)
-        
-    Returns:
-        Difference polynomial expression
-        
-    Examples:
-        >>> difference_polynomial(5, 2)
-        h**5 - g**2
-        >>> difference_polynomial(3, 1)  
-        h**3 - g
-    """
-    return h**e_power - g**o_power
-
 
 def uv_to_gh_transform(uv_expr: sy.Expr) -> sy.Expr:
     """

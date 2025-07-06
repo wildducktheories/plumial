@@ -1,11 +1,11 @@
 """
-Tests for difference polynomial functionality.
+Tests for d-polynomial functionality.
 """
 
 import pytest
 import sympy as sy
 import math
-from plumial.core.difference_polynomials import D, D_from_counts, clear_d_cache, d_cache_info
+from plumial.core.D import D, clear_d_cache, d_cache_info
 from plumial.utils.symbolic import g, h
 
 
@@ -23,20 +23,9 @@ def test_d_from_p_value():
     assert d.r() == 1  # e % o = 5 % 2 = 1
 
 
-def test_d_from_counts():
-    """Test D creation from bit counts."""
-    d = D_from_counts(7, 3)
-    
-    assert d.n() == 7
-    assert d.o() == 3
-    assert d.e() == 4
-    assert d.q() == 1
-    assert d.r() == 1
-
-
 def test_d_symbolic_expression():
     """Test symbolic expression generation."""
-    d = D_from_counts(4, 2)
+    d = D(21)  # p=21 has n=4, o=2, e=2
     
     expr = d.as_expr()
     expected = h**2 - g**2
@@ -47,7 +36,7 @@ def test_d_symbolic_expression():
 
 def test_d_evaluation():
     """Test polynomial evaluation with numeric values."""
-    d = D_from_counts(4, 2)  # h^2 - g^2
+    d = D(21)  # h^2 - g^2
     
     # Symbolic evaluation
     symbolic = d.d()
@@ -67,7 +56,7 @@ def test_d_evaluation():
 
 def test_d_gcd():
     """Test GCD computation."""
-    d = D_from_counts(4, 2)  # e=2, o=2
+    d = D(21)  # e=2, o=2
     
     # Symbolic GCD
     symbolic_gcd = d.gcd()
@@ -80,7 +69,7 @@ def test_d_gcd():
 
 def test_d_g_vector():
     """Test g-vector generation."""
-    d = D_from_counts(5, 3)  # o=3
+    d = D(293)  # o=3
     
     # Symbolic vector
     vec = d.g_vector()
@@ -100,7 +89,7 @@ def test_d_g_vector():
 
 def test_d_factorization():
     """Test polynomial factorization."""
-    d = D_from_counts(4, 2)  # h^2 - g^2
+    d = D(21)  # h^2 - g^2
     
     factored = d.factor()
     # h^2 - g^2 = (h - g)(h + g)
@@ -112,8 +101,8 @@ def test_d_caching():
     """Test D instance caching."""
     clear_d_cache()
     
-    d1 = D_from_counts(7, 3)
-    d2 = D_from_counts(7, 3)
+    d1 = D(21)
+    d2 = D(21)
     
     # Should be the same cached instance
     assert d1 is d2
@@ -127,7 +116,7 @@ def test_d_caching():
 def test_d_edge_cases():
     """Test edge cases for D class."""
     # Case where o = 0
-    d_zero_o = D_from_counts(3, 0)
+    d_zero_o = D(8)
     assert d_zero_o.o() == 0
     assert d_zero_o.e() == 3
     assert d_zero_o.q() == 0
@@ -135,7 +124,7 @@ def test_d_edge_cases():
     assert d_zero_o.as_expr() == h**3 - 1  # g^0 = 1
     
     # Case where e = 0
-    d_zero_e = D_from_counts(2, 2)
+    d_zero_e = D(7)
     assert d_zero_e.o() == 2
     assert d_zero_e.e() == 0
     assert d_zero_e.as_expr() == 1 - g**2  # h^0 = 1
@@ -143,9 +132,9 @@ def test_d_edge_cases():
 
 def test_d_equality_and_hashing():
     """Test equality and hashing."""
-    d1 = D_from_counts(7, 3)
-    d2 = D_from_counts(7, 3)
-    d3 = D_from_counts(7, 4)
+    d1 = D(21)
+    d2 = D(21)
+    d3 = D(23)
     
     assert d1 == d2
     assert d1 != d3
@@ -155,7 +144,7 @@ def test_d_equality_and_hashing():
 
 def test_d_representation():
     """Test string representations."""
-    d = D_from_counts(4, 2)
+    d = D(21)
     
     # SymPy may order terms differently, so just check key components
     expr_str = str(d)

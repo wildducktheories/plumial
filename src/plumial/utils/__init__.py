@@ -20,7 +20,7 @@ from .symbolic import (
     index_symbols, additional_symbols, constants, indexed_symbols, all_symbols,
     # Utility functions
     get_symbol, get_indexed_symbol, substitute_values, create_polynomial_expression,
-    difference_polynomial, uv_to_gh_transform, gh_to_uv_transform, extract_coefficients,
+    uv_to_gh_transform, gh_to_uv_transform, extract_coefficients,
     # Compatibility
     S, I, F, SymbolNamespace, IndexedNamespace, FunctionsNamespace,
     # Lookup dictionaries
@@ -51,7 +51,7 @@ __all__ = [
     "index_symbols", "additional_symbols", "constants", "indexed_symbols", "all_symbols",
     # Symbolic utility functions
     "get_symbol", "get_indexed_symbol", "substitute_values", "create_polynomial_expression",
-    "difference_polynomial", "uv_to_gh_transform", "gh_to_uv_transform", "extract_coefficients",
+    "uv_to_gh_transform", "gh_to_uv_transform", "extract_coefficients",
     # Compatibility
     "S", "I", "F", "SymbolNamespace", "IndexedNamespace", "FunctionsNamespace", "symbol_dict", "indexed_dict", "substitution_dict",
     # Matrix utilities

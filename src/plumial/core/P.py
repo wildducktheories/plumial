@@ -58,7 +58,7 @@ class _P:
     
     Attributes:
         _p: The integer p-value this polynomial represents
-        _d: Cached difference polynomial D(p)
+        _d: Cached D object D(p)
         _next: Cached next element in the cycle
         _pred: Cached predecessor element in the cycle
         _expr_*: Cached symbolic expressions for various polynomial forms
@@ -91,7 +91,7 @@ class _P:
         self._expr_uv: Optional[sy.Expr] = None
         self._expr_gh: Optional[sy.Expr] = None
         
-        # Initialize difference polynomial D(p)
+        # Initialize D object D(p)
         if self._d is None:
             self._d = D(p)
     
@@ -113,7 +113,7 @@ class _P:
     
     def d(self, g: OptionalNumeric = None, h: OptionalNumeric = None) -> NumericOrSymbolic:
         """
-        Return the difference polynomial or its evaluation.
+        Return the d-polynomial or its evaluation.
         
         Args:
             g: Value to substitute for g parameter (default: keep symbolic)
@@ -132,7 +132,7 @@ class _P:
         return self._d.d(g, h)
     
     def D(self):
-        """Return the difference polynomial object."""
+        """Return the D object."""
         return self._d
     
     def next(self) -> '_P':
@@ -238,9 +238,9 @@ class _P:
         Calculate a pair of polynomials a,x such that x*d = a*k.
         
         This method computes the polynomial factorization that satisfies the
-        fundamental relationship x*d = a*k, where d is the difference polynomial
-        and k is the k polynomial. The factorization separates the difference
-        polynomial ratio d/k into numerator (a) and denominator (x) components.
+        fundamental relationship x*d = a*k, where d is the d-polynomial
+        and k is the k polynomial. The factorization separates the d-polynomial
+        ratio d/k into numerator (a) and denominator (x) components.
         
         Returns:
             Tuple of (a_polynomial, x_polynomial) where both are SymPy expressions
@@ -334,7 +334,7 @@ class _P:
         Calculate the f polynomial (GCD factor).
         
         The f polynomial represents the greatest common divisor factor that appears
-        in the relationship between the difference polynomial d and the k polynomial.
+        in the relationship between the d-polynomial d and the k polynomial.
         It is computed as the GCD of d and k, with special handling for even/odd
         values of g.
         
@@ -346,7 +346,7 @@ class _P:
             f polynomial (symbolic) or its numerical evaluation
             
         Mathematical Background:
-            f = gcd(d, k) where d is the difference polynomial and k is the k polynomial
+            f = gcd(d, k) where d is the d-polynomial and k is the k polynomial
             For even g: f is computed over the entire cycle
             For odd g: f is the simple GCD of d and k
             

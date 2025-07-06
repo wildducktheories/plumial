@@ -1,10 +1,10 @@
 """
-Simplified tests for the D class (difference polynomials).
+Simplified tests for the D class (d-polynomials).
 """
 
 import pytest
 import sympy as sy
-from plumial.core.difference_polynomials import D, D_from_counts, clear_d_cache, d_cache_info
+from plumial.core.D import D, clear_d_cache, d_cache_info
 from plumial.utils.symbolic import g, h
 
 
@@ -26,19 +26,6 @@ def test_d_class_creation():
         assert d_obj.e() == d_obj.n() - d_obj.o()
 
 
-def test_d_from_counts_factory():
-    """Test D_from_counts factory function."""
-    # Test with known values
-    d_obj = D_from_counts(n=3, o=1)
-    assert d_obj.n() == 3
-    assert d_obj.o() == 1
-    assert d_obj.e() == 2
-    
-    # Test edge cases
-    d_obj = D_from_counts(n=1, o=0)
-    assert d_obj.n() == 1
-    assert d_obj.o() == 0
-    assert d_obj.e() == 1
 
 
 def test_d_caching():
@@ -59,7 +46,7 @@ def test_d_caching():
 
 
 def test_d_polynomial_evaluation():
-    """Test difference polynomial evaluation."""
+    """Test d-polynomial evaluation."""
     d_obj = D(133)
     
     # Symbolic evaluation

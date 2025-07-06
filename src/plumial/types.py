@@ -75,7 +75,7 @@ class PValueProtocol(Protocol):
 
 class DPolynomialProtocol(Protocol):
     """
-    Protocol for objects that behave like difference polynomials.
+    Protocol for objects that behave like D objects.
     
     Objects implementing this protocol must provide methods to access
     polynomial properties and evaluation.
@@ -94,7 +94,7 @@ class DPolynomialProtocol(Protocol):
         ...
     
     def d(self, g: OptionalNumeric = None, h: OptionalNumeric = None) -> NumericOrSymbolic:
-        """Evaluate the difference polynomial."""
+        """Evaluate the d-polynomial."""
         ...
 
 
@@ -204,7 +204,7 @@ def is_p_value_like(obj: Any) -> bool:
     return hasattr(obj, 'p') and hasattr(obj, 'n') and callable(obj.p) and callable(obj.n)
 
 
-def is_difference_polynomial_like(obj: Any) -> bool:
+def is_d_polynomial_like(obj: Any) -> bool:
     """
     Check if an object implements the DPolynomialProtocol.
     
@@ -215,11 +215,11 @@ def is_difference_polynomial_like(obj: Any) -> bool:
         True if object has required methods, False otherwise
         
     Examples:
-        >>> from plumial.core.difference_polynomials import D
+        >>> from plumial.core.D import D
         >>> d_obj = D(133)
-        >>> is_difference_polynomial_like(d_obj)
+        >>> is_d_polynomial_like(d_obj)
         True
-        >>> is_difference_polynomial_like("not a polynomial")
+        >>> is_d_polynomial_like("not a polynomial")
         False
     """
     required_methods = ['n', 'o', 'e', 'd']

@@ -1,10 +1,10 @@
 """
-Difference polynomials for Collatz conjecture analysis.
+D objects for Collatz conjecture analysis.
 
-This module implements the D class representing difference polynomials of the form
-h^e - g^o, which are fundamental to the algebraic analysis of Collatz sequences.
+This module implements the D class representing d-polynomials of the form
+d_p(g,h) = h^e - g^o, which are fundamental to the algebraic analysis of Collatz sequences.
 
-The difference polynomial h^e - g^o encodes the core mathematical structure of
+The d-polynomial d_p(g,h) = h^e - g^o encodes the core mathematical structure of
 Collatz sequences, where:
 - h represents the "halving" operation (typically h=2)
 - g represents the "3x+1" operation (typically g=3)  
@@ -12,19 +12,18 @@ Collatz sequences, where:
 - o is the number of odd steps (3x+1 operations)
 
 Key Features:
-    - Symbolic representation and evaluation of difference polynomials
+    - Symbolic representation and evaluation of d-polynomials
     - GCD computation for polynomial analysis
     - Factorization and algebraic manipulation
     - LRU caching for performance optimization
     - Support for both symbolic and numerical computations
 
 Mathematical Background:
-    The difference polynomial h^e - g^o represents the net effect of a Collatz
-    sequence segment. When this polynomial equals zero, it indicates a potential
-    cycle in the Collatz sequence.
+    The d-polynomial d_p(g,h) = h^e - g^o represents the net effect of a Collatz
+    sequence segment.
 
 Examples:
-    >>> from plumial.core.difference_polynomials import D
+    >>> from plumial.core.D import D
     >>> d = D(133)  # Create from p-value 133
     >>> print(d.n(), d.o(), d.e())  # 7, 2, 5
     >>> poly = d.d()  # Get symbolic form: h^5 - g^2
@@ -47,9 +46,9 @@ from ..utils.symbolic import g as g_sym, h as h_sym
 
 class _D:
     """
-    Internal class representing a difference polynomial h^e - g^o.
+    Internal class representing a d-polynomial d_p(g,h) = h^e - g^o.
     
-    This class encapsulates the mathematical structure of a difference polynomial
+    This class encapsulates the mathematical structure of a d-polynomial
     used in Collatz sequence analysis. It provides methods for symbolic manipulation,
     numerical evaluation, GCD computation, and polynomial factorization.
     
@@ -78,7 +77,7 @@ class _D:
     
     def __init__(self, n: int, o: int) -> None:
         """
-        Initialize difference polynomial from bit counts.
+        Initialize d-polynomial from bit counts.
         
         Args:
             n: Total number of bits (must be >= 0)
@@ -130,7 +129,7 @@ class _D:
         Return the symbolic expression h^e - g^o.
         
         Returns:
-            SymPy expression representing the difference polynomial
+            SymPy expression representing the d-polynomial
         """
         if self._expr is None:
             self._expr = h_sym**self._e - g_sym**self._o
@@ -138,7 +137,7 @@ class _D:
     
     def d(self, g: OptionalNumeric = None, h: OptionalNumeric = None) -> NumericOrSymbolic:
         """
-        Evaluate the difference polynomial.
+        Evaluate the d-polynomial.
         
         Args:
             g: Value to substitute for g (default: keep symbolic)
@@ -162,7 +161,7 @@ class _D:
         Calculate GCD of 2^e and g^o.
         
         This method computes the greatest common divisor of the powers appearing
-        in the difference polynomial. When g is specified numerically, it returns
+        in the d-polynomial. When g is specified numerically, it returns
         the integer GCD. When g is symbolic, it returns a symbolic GCD expression.
         
         Args:
@@ -173,7 +172,7 @@ class _D:
             
         Mathematical Background:
             gcd(2^e, g^o) is important for understanding the divisibility
-            properties of the difference polynomial and potential cycle detection.
+            properties of the d-polynomial and potential cycle detection.
             
         Examples:
             >>> d = D(133)  # e=5, o=2
@@ -211,10 +210,10 @@ class _D:
     
     def factor(self) -> FactorResult:
         """
-        Return factored form of the difference polynomial.
+        Return factored form of the d-polynomial.
         
         This method applies SymPy's factorization capabilities to factor the
-        difference polynomial h^e - g^o. Factorization can reveal important
+        d-polynomial d_p(g,h) = h^e - g^o. Factorization can reveal important
         mathematical structures and common factors that are useful for analysis.
         
         Returns:
@@ -234,7 +233,7 @@ class _D:
     
     def expand(self) -> sy.Expr:
         """
-        Return expanded form of the difference polynomial.
+        Return expanded form of the d-polynomial.
         
         Returns:
             Expanded symbolic expression
@@ -270,7 +269,7 @@ def D(p: int) -> _D:
     """
     Factory function for creating D instances from p-values.
     
-    This is the main entry point for creating difference polynomial objects from
+    This is the main entry point for creating D objects from
     p-values. The function extracts the bit count information from the p-value
     and creates a cached D instance for performance.
     
@@ -278,7 +277,7 @@ def D(p: int) -> _D:
         p: Integer p-value from which to extract n and o (must be positive)
         
     Returns:
-        _D instance representing the difference polynomial
+        _D instance representing the d-polynomial
         
     Raises:
         ValueError: If p <= 0
@@ -288,7 +287,7 @@ def D(p: int) -> _D:
         - n = bit_length(p) - 1 (total path bits)
         - o = bit_count(p) - 1 (odd path bits)
         - e = n - o (even path bits)
-        - The difference polynomial is h^e - g^o
+        - The d-polynomial is d_p(g,h) = h^e - g^o
         
     Examples:
         >>> d1 = D(133)  # Creates D polynomial from p=133

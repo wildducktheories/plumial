@@ -12,7 +12,7 @@ Usage Patterns:
     >>> from plumial.utils import F
     >>> # Simple getters
     >>> F.n(p_obj)  # Get bit count
-    >>> F.d(p_obj)  # Get difference polynomial
+    >>> F.d(p_obj)  # Get d-polynomial
     >>> 
     >>> # Curried functions
     >>> k_func = F.k(g=3, h=2)  # Returns lambda p: p.k(3, 2)
@@ -32,12 +32,12 @@ from ..types import NumericType, OptionalNumeric, PValueProtocol
 # Simple getter functions
 def as_expr(p: PValueProtocol) -> Any:
     """Extract expression representation from P-object."""
-    return p.d()  # Return difference polynomial expression
+    return p.d()  # Return d-polynomial expression
 
 
 def as_poly(p: PValueProtocol) -> Any:
     """Extract polynomial representation from P-object."""
-    return p.d()  # Return difference polynomial
+    return p.d()  # Return d-polynomial
 
 
 def b(p: PValueProtocol, width: int = 0) -> str:
@@ -46,7 +46,7 @@ def b(p: PValueProtocol, width: int = 0) -> str:
 
 
 def d(p: PValueProtocol) -> Any:
-    """Extract difference polynomial from P-object."""
+    """Extract d-polynomial from P-object."""
     return p.d()
 
 

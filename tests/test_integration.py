@@ -5,8 +5,8 @@ Integration tests for P and D classes working together.
 import pytest
 import sympy as sy
 from plumial import P
-from plumial.core.difference_polynomials import D, D_from_counts
-from plumial.core.polynomials import clear_cache
+from plumial.core.D import D
+from plumial.core.P import clear_cache
 from plumial.utils.symbolic import g, h
 from plumial.utils.binary import n, o, e, cycle
 
@@ -47,7 +47,7 @@ def test_cycle_polynomial_consistency():
     for obj in cycle_objects:
         assert obj.n() == p_obj.n()
     
-    # Test that difference polynomials are related
+    # Test that d-polynomials are related
     d_values = []
     for obj in cycle_objects:
         d_val = obj.d(g=3, h=2)
@@ -111,21 +111,21 @@ def test_binary_operations_integration():
     print("Binary operations integration successful")
 
 
-def test_d_from_counts_integration():
-    """Test D_from_counts creates objects that work with P."""
-    # Create D object from counts
-    d_obj = D_from_counts(n=3, o=1)
+def test_d_integration():
+    """Test D objects work correctly."""
+    # Create D object from p-value
+    d_obj = D(21)  # This gives us n=4, o=2, e=2
     
     # Test that it has correct properties
-    assert d_obj.n() == 3
-    assert d_obj.o() == 1
+    assert d_obj.n() == 4
+    assert d_obj.o() == 2
     assert d_obj.e() == 2
     
     # Test that we can evaluate it
     d_val = d_obj.d(g=3, h=2)
     assert isinstance(d_val, (int, float, sy.Rational))
     
-    print(f"D_from_counts integration successful")
+    print(f"D integration successful")
 
 
 def test_caching_integration():

@@ -6,7 +6,7 @@ import pytest
 import sympy as sy
 import math
 from plumial import P
-from plumial.core.polynomials import clear_cache
+from plumial.core.P import clear_cache
 from plumial.utils.symbolic import g, h, u, v
 
 

@@ -3,7 +3,7 @@ Tests for P instance caching functionality.
 """
 
 import pytest
-from plumial.core.polynomials import P, clear_cache, cache_info
+from plumial.core.P import P, clear_cache, cache_info
 
 
 def test_p_caching():
@@ -88,7 +88,7 @@ def test_p_string_representation():
     p = P(133)
     
     assert str(p) == "133"
-    assert repr(p) == "P(133)"
+    assert repr(p) == "133"
 
 
 def test_p_equality_and_hashing():
