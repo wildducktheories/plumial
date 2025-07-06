@@ -1,0 +1,244 @@
+version: '3'
+
+vars:
+  PYTHON: python
+  PIP: pip
+  PYTEST: pytest
+  SPHINX_BUILD: sphinx-build
+  DOCS_SOURCE: docs
+  DOCS_BUILD: docs/_build
+  SRC_DIR: src
+  TESTS_DIR: tests
+
+env:
+  PYTHONPATH: "{{.SRC_DIR}}"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # Installation and Environment Setup
+  install:
+    desc: Install package in development mode
+    cmds:
+      - "{{.PIP}} install -e ."
+    
+  install-dev:
+    desc: Install package with development dependencies
+    cmds:
+      - "{{.PIP}} install -e .[dev]"
+      
+  install-docs:
+    desc: Install package with documentation dependencies
+    cmds:
+      - "{{.PIP}} install -e .[docs]"
+      
+  install-all:
+    desc: Install package with all dependencies
+    cmds:
+      - "{{.PIP}} install -e .[dev,docs]"
+
+  # Testing
+  test:
+    desc: Run all tests
+    cmds:
+      - "{{.PYTEST}} {{.TESTS_DIR}}"
+      
+  test-verbose:
+    desc: Run tests with verbose output
+    cmds:
+      - "{{.PYTEST}} -v {{.TESTS_DIR}}"
+      
+  test-coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - "{{.PYTEST}} --cov={{.SRC_DIR}} --cov-report=html --cov-report=term {{.TESTS_DIR}}"
+      
+  test-specific:
+    desc: Run specific test file (usage - task test-specific -- tests/test_p_class.py)
+    cmds:
+      - "{{.PYTEST}} {{.CLI_ARGS}}"
+
+  # Code Quality
+  lint:
+    desc: Run all linting tools
+    deps: [lint-flake8, lint-black-check, lint-isort-check, lint-mypy]
+    
+  lint-flake8:
+    desc: Run flake8 linter
+    cmds:
+      - flake8 {{.SRC_DIR}} {{.TESTS_DIR}}
+      
+  lint-black-check:
+    desc: Check code formatting with black
+    cmds:
+      - black --check {{.SRC_DIR}} {{.TESTS_DIR}}
+      
+  lint-isort-check:
+    desc: Check import sorting with isort
+    cmds:
+      - isort --check-only {{.SRC_DIR}} {{.TESTS_DIR}}
+      
+  lint-mypy:
+    desc: Run mypy type checking
+    cmds:
+      - mypy {{.SRC_DIR}}
+
+  # Code Formatting
+  format:
+    desc: Format code with black and isort
+    deps: [format-black, format-isort]
+    
+  format-black:
+    desc: Format code with black
+    cmds:
+      - black {{.SRC_DIR}} {{.TESTS_DIR}}
+      
+  format-isort:
+    desc: Sort imports with isort
+    cmds:
+      - isort {{.SRC_DIR}} {{.TESTS_DIR}}
+
+  # Documentation
+  docs:
+    desc: Build HTML documentation
+    cmds:
+      - "{{.SPHINX_BUILD}} -b html {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/html"
+      
+  docs-latex:
+    desc: Build LaTeX documentation
+    cmds:
+      - "{{.SPHINX_BUILD}} -b latex {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/latex"
+      
+  docs-pdf:
+    desc: Build PDF documentation (requires LaTeX)
+    deps: [docs-latex]
+    cmds:
+      - cd {{.DOCS_BUILD}}/latex && make
+      
+  docs-clean:
+    desc: Clean documentation build directory
+    cmds:
+      - rm -rf {{.DOCS_BUILD}}
+      
+  docs-rebuild:
+    desc: Clean and rebuild all documentation formats
+    deps: [docs-clean]
+    cmds:
+      - task: docs
+      - task: docs-pdf
+      
+  docs-serve:
+    desc: Serve documentation locally
+    deps: [docs]
+    cmds:
+      - echo "Starting local documentation server..."
+      - echo "Documentation will be available at http://localhost:8000"
+      - cd {{.DOCS_BUILD}}/html && {{.PYTHON}} -m http.server 8000
+      
+  docs-watch:
+    desc: Watch for changes and rebuild docs (requires sphinx-autobuild)
+    cmds:
+      - sphinx-autobuild {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/html --host 0.0.0.0 --port 8000
+
+  # Jupyter Notebooks
+  notebook:
+    desc: Start Jupyter notebook server
+    cmds:
+      - echo "Starting Jupyter notebook server..."
+      - echo "Opening examples notebook"
+      - jupyter notebook examples.ipynb
+      
+  notebook-lab:
+    desc: Start JupyterLab server
+    cmds:
+      - echo "Starting JupyterLab server..."
+      - jupyter lab
+
+  # Package Building and Distribution
+  build:
+    desc: Build source and wheel distributions
+    cmds:
+      - "{{.PYTHON}} -m build"
+      
+  build-wheel:
+    desc: Build wheel distribution only
+    cmds:
+      - "{{.PYTHON}} -m build --wheel"
+      
+  build-sdist:
+    desc: Build source distribution only
+    cmds:
+      - "{{.PYTHON}} -m build --sdist"
+
+  # Cleaning
+  clean:
+    desc: Clean all build artifacts
+    deps: [clean-build, clean-cache, clean-coverage]
+    
+  clean-build:
+    desc: Clean build directories
+    cmds:
+      - rm -rf build/ dist/ *.egg-info/
+      - rm -rf {{.DOCS_BUILD}}/
+      
+  clean-cache:
+    desc: Clean Python cache files
+    cmds:
+      - find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+      - find . -name "*.pyc" -delete
+      - find . -name "*.pyo" -delete
+      
+  clean-coverage:
+    desc: Clean coverage reports
+    cmds:
+      - rm -rf htmlcov/ .coverage .coverage.*
+
+  # Development Workflow
+  dev-setup:
+    desc: Complete development environment setup
+    deps: [install-all]
+    cmds:
+      - echo "Development environment setup complete!"
+      - echo "Available commands:"
+      - echo "  task test          # Run tests"
+      - echo "  task docs          # Build documentation"
+      - echo "  task lint          # Check code quality"
+      - echo "  task format        # Format code"
+      - echo "  task notebook      # Start Jupyter"
+
+  # GitHub Pages Deployment (future implementation)
+  deploy-docs:
+    desc: Deploy documentation to GitHub Pages
+    cmds:
+      - echo "GitHub Pages deployment not yet implemented"
+      - echo "This will be added in a future update"
+      
+  # Quick Development Tasks
+  check:
+    desc: Run all quality checks (tests, linting, type checking)
+    deps: [test, lint]
+    
+  quick-test:
+    desc: Run tests for changed files only (requires pytest-testmon)
+    cmds:
+      - "{{.PYTEST}} --testmon"
+      
+  # Project Information
+  info:
+    desc: Show project information
+    cmds:
+      - echo "Plumial Development Environment"
+      - echo "=============================="
+      - echo "Python - $({{.PYTHON}} --version)"
+      - echo "Project root - $(pwd)"
+      - echo "Source directory - {{.SRC_DIR}}"
+      - echo "Tests directory - {{.TESTS_DIR}}"
+      - echo "Documentation - {{.DOCS_SOURCE}}"
+      - echo ""
+      - echo "Quick commands:"
+      - echo "  task dev-setup     # Set up development environment"
+      - echo "  task check         # Run tests and linting"
+      - echo "  task docs-serve    # Build and serve documentation"
