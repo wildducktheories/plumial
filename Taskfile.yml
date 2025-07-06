@@ -107,31 +107,8 @@ tasks:
     cmds:
       - "{{.SPHINX_BUILD}} -b html {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/html"
       
-  docs-latex:
-    desc: Build LaTeX documentation
-    cmds:
-      - "{{.SPHINX_BUILD}} -b latex {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/latex"
-      
-  docs-pdf:
-    desc: Build PDF documentation (requires LaTeX)
-    deps: [docs-latex]
-    cmds:
-      - cd {{.DOCS_BUILD}}/latex && make
-      
-  docs-clean:
-    desc: Clean documentation build directory
-    cmds:
-      - rm -rf {{.DOCS_BUILD}}
-      
-  docs-rebuild:
-    desc: Clean and rebuild all documentation formats
-    deps: [docs-clean]
-    cmds:
-      - task: docs
-      - task: docs-pdf
-      
   docs-serve:
-    desc: Serve documentation locally
+    desc: Build and serve documentation locally
     deps: [docs]
     cmds:
       - echo "Starting local documentation server..."
@@ -142,6 +119,17 @@ tasks:
     desc: Watch for changes and rebuild docs (requires sphinx-autobuild)
     cmds:
       - sphinx-autobuild {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/html --host 0.0.0.0 --port 8000
+
+  docs-clean:
+    desc: Clean documentation build directory
+    cmds:
+      - rm -rf {{.DOCS_BUILD}}
+
+  docs-pdf:
+    desc: Build PDF documentation (requires LaTeX)
+    cmds:
+      - "{{.SPHINX_BUILD}} -b latex {{.DOCS_SOURCE}} {{.DOCS_BUILD}}/latex"
+      - cd {{.DOCS_BUILD}}/latex && make
 
   # Jupyter Notebooks
   notebook:
@@ -203,13 +191,13 @@ tasks:
     cmds:
       - echo "Development environment setup complete!"
       - echo "Available commands:"
-      - echo "  task test          # Run tests"
-      - echo "  task docs          # Build documentation"
-      - echo "  task lint          # Check code quality"
-      - echo "  task format        # Format code"
-      - echo "  task notebook      # Start Jupyter"
+      - echo "  task test          - Run tests"
+      - echo "  task docs          - Build documentation"
+      - echo "  task lint          - Check code quality"
+      - echo "  task format        - Format code"
+      - echo "  task notebook      - Start Jupyter"
 
-  # GitHub Pages Deployment (future implementation)
+  # GitHub Pages Deployment
   deploy-docs:
     desc: Deploy documentation to GitHub Pages
     cmds:
@@ -239,6 +227,7 @@ tasks:
       - echo "Documentation - {{.DOCS_SOURCE}}"
       - echo ""
       - echo "Quick commands:"
-      - echo "  task dev-setup     # Set up development environment"
-      - echo "  task check         # Run tests and linting"
-      - echo "  task docs-serve    # Build and serve documentation"
+      - echo "  task dev-setup     - Set up development environment"
+      - echo "  task check         - Run tests and linting"
+      - echo "  task docs-serve    - Build and serve documentation"
+      - echo "  task notebook      - Start Jupyter notebook"
