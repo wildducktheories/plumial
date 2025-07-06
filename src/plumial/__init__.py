@@ -1,14 +1,81 @@
 """
 Plumial: A Python package for Collatz conjecture analysis and computation.
 
-This package provides tools and functions for working with the Collatz conjecture,
-including sequence generation, analysis, and visualization capabilities.
+This package provides comprehensive tools and mathematical frameworks for analyzing
+the Collatz conjecture through polynomial representations, difference polynomials,
+and binary path analysis.
+
+Key Features:
+    - Path Polynomials (P class): Represent Collatz sequence paths as mathematical polynomials
+    - Difference Polynomials (D class): Analyze h^e - g^o structures fundamental to Collatz analysis
+    - Binary Operations: Comprehensive bit-level analysis and cycle navigation
+    - Symbolic Mathematics: Full SymPy integration for symbolic computation
+    - High Performance: LRU caching and optimized algorithms
+    - Type Safety: Comprehensive type hints and modern Python practices
+
+Core Classes:
+    P: Path polynomial class for sequence analysis
+        - UV polynomial representations
+        - Mathematical relationships (x*d = a*k)
+        - Cycle navigation and analysis
+
+    D: Difference polynomial class for algebraic analysis
+        - Symbolic form h^e - g^o
+        - GCD computation and factorization
+        - Polynomial evaluation and manipulation
+
+Mathematical Background:
+    The Collatz conjecture studies sequences defined by:
+    - If n is even: n → n/2
+    - If n is odd: n → 3n+1
+
+    This package encodes these operations using polynomial representations where:
+    - h represents halving operations (typically h=2)
+    - g represents the 3x+1 operation (typically g=3)
+    - Path polynomials encode the sequence of operations
+    - Difference polynomials h^e - g^o capture cycle behavior
+
+Examples:
+    >>> from plumial import P, D
+    >>>
+    >>> # Create a path polynomial for p-value 133
+    >>> p = P(133)
+    >>> print(f"Path bits: n={p.n()}, odd={p.o()}, even={p.e()}")
+    >>>
+    >>> # Get UV polynomial representation
+    >>> uv_poly = p.uv()
+    >>> print(f"UV polynomial: {uv_poly}")
+    >>>
+    >>> # Evaluate k polynomial
+    >>> k_value = p.k(g=3, h=2)
+    >>> print(f"k(3,2) = {k_value}")
+    >>>
+    >>> # Create difference polynomial
+    >>> d = D(133)
+    >>> print(f"Difference polynomial: {d.d()}")  # h^5 - g^2
+    >>> print(f"Evaluated at g=3, h=2: {d.d(g=3, h=2)}")  # 23
+
+Installation:
+    pip install plumial
+
+Dependencies:
+    - sympy: Symbolic mathematics
+    - numpy: Numerical computing
+    - typing: Type hints (Python 3.8+)
+
+Author: Jon Seymour <jon@wildducktheories.com>
+License: MIT
+Version: 0.1.0
 """
 
 __version__ = "0.1.0"
-__author__ = "Your Name"
-__email__ = "your.email@example.com"
+__author__ = "Jon Seymour"
+__email__ = "jon@wildducktheories.com"
+
+from .core import P, D
 
 __all__ = [
     "__version__",
+    "P",
+    "D",
 ]
