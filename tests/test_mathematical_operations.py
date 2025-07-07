@@ -8,6 +8,7 @@ import pytest
 import sympy as sy
 
 from plumial import P
+from plumial.core import B
 from plumial.core.P import clear_cache
 from plumial.utils.symbolic import g, h, u, v
 
@@ -34,8 +35,8 @@ def test_k_polynomial():
     assert k_symbolic.has(g) or k_symbolic.has(h) or k_symbolic.is_number
 
     # Numerical k
-    k_numeric = p.k(g=3, h=2)
-    assert isinstance(k_numeric, (int, float, sy.Rational))
+    k_numeric = p.encode(B.Collatz).k()
+    assert isinstance(k_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
 
     print(f"k symbolic: {k_symbolic}")
     print(f"k(3,2): {k_numeric}")
@@ -79,8 +80,8 @@ def test_a_coefficient():
 
     # Numerical a
     try:
-        a_numeric = p.a(g=3, h=2)
-        assert isinstance(a_numeric, (int, float, sy.Rational))
+        a_numeric = p.encode(B.Collatz).a()
+        assert isinstance(a_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
         print(f"a symbolic: {a_symbolic}")
         print(f"a(3,2): {a_numeric}")
     except ZeroDivisionError:
@@ -97,8 +98,8 @@ def test_x_polynomial_evaluation():
 
     # Numerical x
     try:
-        x_numeric = p.x(g=3, h=2)
-        assert isinstance(x_numeric, (int, float, sy.Rational))
+        x_numeric = p.encode(B.Collatz).x()
+        assert isinstance(x_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
         print(f"x symbolic: {x_symbolic}")
         print(f"x(3,2): {x_numeric}")
     except ZeroDivisionError:
@@ -114,8 +115,8 @@ def test_f_polynomial():
     assert isinstance(f_symbolic, sy.Expr)
 
     # Numerical f
-    f_numeric = p.f(g=3, h=2)
-    assert isinstance(f_numeric, (int, float))
+    f_numeric = p.encode(B.Collatz).f()
+    assert isinstance(f_numeric, (int, float, sy.Integer, sy.Float))
 
     print(f"f symbolic: {f_symbolic}")
     print(f"f(3,2): {f_numeric}")
@@ -125,14 +126,15 @@ def test_mathematical_consistency():
     """Test mathematical relationships between polynomials."""
     p = P(133)
 
-    # Get all polynomial values
-    d_val = p.d(g=3, h=2)
-    k_val = p.k(g=3, h=2)
-    f_val = p.f(g=3, h=2)
+    # Get all polynomial values - encode once, use many times
+    p_collatz = p.encode(B.Collatz)
+    d_val = p_collatz.d()
+    k_val = p_collatz.k()
+    f_val = p_collatz.f()
 
     try:
-        a_val = p.a(g=3, h=2)
-        x_val = p.x(g=3, h=2)
+        a_val = p_collatz.a()
+        x_val = p_collatz.x()
 
         # Test relationship: a = d/f and x = k/f
         assert abs(a_val - d_val / f_val) < 1e-10, f"a != d/f: {a_val} != {d_val/f_val}"
@@ -161,11 +163,13 @@ def test_comparison_with_original():
         print(f"Binary: {bin(p_val)}")
         print(f"n={p.n()}, o={p.o()}, e={p.e()}")
         print(f"d(): {p.d()}")
-        print(f"d(3,2): {p.d(g=3, h=2)}")
+        
+        p_collatz = p.encode(B.Collatz)
+        print(f"d(3,2): {p_collatz.d()}")
 
         try:
             print(f"k(): {p.k()}")
-            print(f"k(3,2): {p.k(g=3, h=2)}")
+            print(f"k(3,2): {p_collatz.k()}")
 
             print(f"uv(): {p.uv()}")
 

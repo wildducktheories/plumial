@@ -6,6 +6,7 @@ import pytest
 import sympy as sy
 
 from plumial.core.D import D, clear_d_cache, d_cache_info
+from plumial.core import B
 from plumial.utils.symbolic import g, h
 
 
@@ -54,8 +55,8 @@ def test_d_polynomial_evaluation():
     assert d_symbolic.has(g) or d_symbolic.has(h) or d_symbolic.is_number
 
     # Numerical evaluation
-    d_numeric = d_obj.d(g=3, h=2)
-    assert isinstance(d_numeric, (int, float, sy.Rational))
+    d_numeric = d_obj.encode(B.Collatz).d()
+    assert isinstance(d_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
 
     print(f"D(133) symbolic: {d_symbolic}")
     print(f"D(133, g=3, h=2): {d_numeric}")
@@ -123,9 +124,10 @@ def test_d_mathematical_operations():
 
     # Test gcd method
     try:
-        gcd_val = d_obj.gcd(g=3, h=2)
+        # Note: gcd method only takes g parameter, not h
+        gcd_val = d_obj.gcd(g=3)
         assert isinstance(gcd_val, (int, float, sy.Expr))
-        print(f"D(133).gcd(3,2): {gcd_val}")
+        print(f"D(133).gcd(3): {gcd_val}")
     except Exception as e:
         print(f"GCD failed: {e}")
 
@@ -145,10 +147,10 @@ def test_d_edge_cases():
 
         # Polynomial evaluation
         d_symbolic = d_obj.d()
-        d_numeric = d_obj.d(g=3, h=2)
+        d_numeric = d_obj.encode(B.Collatz).d()
 
         assert isinstance(d_symbolic, sy.Expr)
-        assert isinstance(d_numeric, (int, float, sy.Rational))
+        assert isinstance(d_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
 
         print(f"D({p_val}) = {d_symbolic}")
         print(f"D({p_val}, g=3, h=2) = {d_numeric}")

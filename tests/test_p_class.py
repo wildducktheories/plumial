@@ -6,6 +6,7 @@ import pytest
 import sympy as sy
 
 from plumial.core.P import P, cache_info, clear_cache
+from plumial.core import B
 from plumial.utils.symbolic import g, h, u, v
 
 
@@ -57,7 +58,7 @@ def test_p_d():
 
     # Test d() method
     d_symbolic = p_obj.d()
-    d_numeric = p_obj.d(g=3, h=2)
+    d_numeric = p_obj.encode(B.Collatz).d()
 
     assert isinstance(d_symbolic, sy.Expr)
     assert isinstance(d_numeric, (int, float, sy.Rational))
@@ -152,10 +153,10 @@ def test_p_k_polynomial():
     assert isinstance(k_symbolic, sy.Expr)
 
     # Numerical k
-    k_numeric = p_obj.k(g=3, h=2)
+    k_numeric = p_obj.encode(B.Collatz).k()
     assert isinstance(k_numeric, (int, float, sy.Rational))
 
-    # Test partial substitution
+    # Test partial substitution (using legacy approach for now)
     k_g_only = p_obj.k(g=3)
     assert isinstance(k_g_only, sy.Expr)
     assert not k_g_only.has(g)  # g should be substituted
@@ -197,7 +198,7 @@ def test_p_a_coefficient():
 
     # Numerical a
     try:
-        a_numeric = p_obj.a(g=3, h=2)
+        a_numeric = p_obj.encode(B.Collatz).a()
         assert isinstance(a_numeric, (int, float, sy.Rational))
         print(f"P(133).a(3,2) = {a_numeric}")
     except ZeroDivisionError:
@@ -214,7 +215,7 @@ def test_p_x_polynomial():
 
     # Numerical x
     try:
-        x_numeric = p_obj.x(g=3, h=2)
+        x_numeric = p_obj.encode(B.Collatz).x()
         assert isinstance(x_numeric, (int, float, sy.Rational))
         print(f"P(133).x(3,2) = {x_numeric}")
     except ZeroDivisionError:
@@ -230,10 +231,10 @@ def test_p_f_polynomial():
     assert isinstance(f_symbolic, sy.Expr)
 
     # Numerical f
-    f_numeric = p_obj.f(g=3, h=2)
-    assert isinstance(f_numeric, (int, float))
+    f_numeric = p_obj.encode(B.Collatz).f()
+    assert isinstance(f_numeric, (int, float, sy.Integer, sy.Float))
 
-    # Test partial evaluation
+    # Test partial evaluation (using legacy approach for now)
     f_g_only = p_obj.f(g=3)
     assert isinstance(f_g_only, sy.Expr)
 
@@ -247,11 +248,13 @@ def test_p_mathematical_relationships():
 
     # Test numerical relationships
     try:
-        d_val = p_obj.d(g=3, h=2)
-        k_val = p_obj.k(g=3, h=2)
-        f_val = p_obj.f(g=3, h=2)
-        a_val = p_obj.a(g=3, h=2)
-        x_val = p_obj.x(g=3, h=2)
+        # Encode once and use for all evaluations
+        p_collatz = p_obj.encode(B.Collatz)
+        d_val = p_collatz.d()
+        k_val = p_collatz.k()
+        f_val = p_collatz.f()
+        a_val = p_collatz.a()
+        x_val = p_collatz.x()
 
         # Test a = d/f
         assert abs(a_val - d_val / f_val) < 1e-10
@@ -314,8 +317,9 @@ def test_p_edge_cases():
         assert p_obj.e() >= 0
 
         # Polynomial calculations
-        d_val = p_obj.d(g=3, h=2)
-        k_val = p_obj.k(g=3, h=2)
+        p_collatz = p_obj.encode(B.Collatz)
+        d_val = p_collatz.d()
+        k_val = p_collatz.k()
         uv_val = p_obj.uv()
 
         assert isinstance(d_val, (int, float, sy.Rational))
@@ -388,8 +392,9 @@ def test_p_comparison_with_original():
 
         # Polynomial evaluations
         try:
-            d_val = p_obj.d(g=3, h=2)
-            k_val = p_obj.k(g=3, h=2)
+            p_collatz = p_obj.encode(B.Collatz)
+            d_val = p_collatz.d()
+            k_val = p_collatz.k()
             uv_val = p_obj.uv()
 
             print(f"d(3,2) = {d_val}")
@@ -397,7 +402,7 @@ def test_p_comparison_with_original():
             print(f"uv() = {uv_val}")
 
             # Test f calculation
-            f_val = p_obj.f(g=3, h=2)
+            f_val = p_collatz.f()
             print(f"f(3,2) = {f_val}")
 
         except Exception as e:
@@ -423,8 +428,9 @@ def test_p_error_handling():
 
         # These operations might fail for some values
         try:
-            a_val = p_obj.a(g=3, h=2)
-            x_val = p_obj.x(g=3, h=2)
+            p_collatz = p_obj.encode(B.Collatz)
+            a_val = p_collatz.a()
+            x_val = p_collatz.x()
             print(f"P({p_val}): a={a_val}, x={x_val}")
         except ZeroDivisionError:
             print(f"P({p_val}): Division by zero in a/x calculation")
