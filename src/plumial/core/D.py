@@ -48,6 +48,7 @@ from ..types import (
 )
 from ..utils.symbolic import g as g_sym
 from ..utils.symbolic import h as h_sym
+from .basis import Basis, B, resolve_basis
 
 
 class _D:
@@ -81,13 +82,14 @@ class _D:
         _expr: Cached symbolic expression
     """
 
-    def __init__(self, n: int, o: int) -> None:
+    def __init__(self, n: int, o: int, basis: Optional[Basis] = None) -> None:
         """
         Initialize d-polynomial from bit counts.
 
         Args:
             n: Total number of bits (must be >= 0)
             o: Number of odd bits (must be >= 0 and <= n)
+            basis: The mathematical basis for this encoding (default: symbolic basis)
 
         Raises:
             ValueError: If n < 0, o < 0, or o > n
@@ -98,6 +100,7 @@ class _D:
         self._n = n
         self._o = o
         self._e = n - o
+        self._basis = basis if basis is not None else B.Symbolic
 
         # Quotient and remainder for e/o division
         if o != 0:
@@ -130,6 +133,48 @@ class _D:
         """Return remainder of e/o division."""
         return self._r
 
+    def basis(self) -> Basis:
+        """Return the basis of this encoding."""
+        return self._basis
+
+    def encode(
+        self, 
+        basis: Optional[Basis] = None, 
+        g: OptionalNumeric = None, 
+        h: OptionalNumeric = None
+    ) -> "_D":
+        """
+        Create a new D object encoded in a different basis.
+        
+        This method enables the transitive encoding property where D objects
+        can be transformed between different coordinate systems while preserving
+        the underlying mathematical structure.
+        
+        Args:
+            basis: Target basis for encoding
+            g: g parameter for custom basis (alternative to basis parameter)
+            h: h parameter for custom basis (alternative to basis parameter)
+            
+        Returns:
+            New D object with same n,o values but different basis
+            
+        Examples:
+            >>> d = D(133)                    # Symbolic basis
+            >>> collatz_d = d.encode(B.Collatz)  # Collatz basis
+            >>> custom_d = d.encode(g=5, h=2)    # Custom basis
+            >>> back_d = collatz_d.encode()      # Back to symbolic basis
+            >>> assert back_d == d              # Round-trip equality
+        """
+        # Handle empty encode() - return to symbolic basis
+        if basis is None and g is None and h is None:
+            return D(p=None, n=self._n, o=self._o, basis=B.Symbolic)
+        
+        # Resolve target basis
+        target_basis = resolve_basis(basis=basis, g=g, h=h)
+        
+        # Return new D object with same n,o but different basis
+        return D(p=None, n=self._n, o=self._o, basis=target_basis)
+
     def as_expr(self) -> sy.Expr:
         """
         Return the symbolic expression h^e - g^o.
@@ -148,19 +193,38 @@ class _D:
         Evaluate the d-polynomial.
 
         Args:
-            g: Value to substitute for g (default: keep symbolic)
-            h: Value to substitute for h (default: keep symbolic)
+            g: Value to substitute for g (default: use basis or keep symbolic)
+            h: Value to substitute for h (default: use basis or keep symbolic)
 
         Returns:
             Evaluated expression or symbolic form
+            
+        Examples:
+            >>> d = D(133)
+            >>> d.d()  # Symbolic form
+            h**5 - g**2
+            >>> d.d(g=3, h=2)  # Legacy numerical evaluation
+            23
+            >>> collatz_d = D(133).encode(B.Collatz)
+            >>> collatz_d.d()  # Uses basis automatically
+            23
         """
         result = self.as_expr()
 
-        if g is not None:
-            result = result.subs(g_sym, g)
-
-        if h is not None:
-            result = result.subs(h_sym, h)
+        if g is not None or h is not None:
+            # Legacy path: use provided parameters
+            if g is not None:
+                result = result.subs(g_sym, g)
+            if h is not None:
+                result = result.subs(h_sym, h)
+        else:
+            # New path: use basis if it's not symbolic
+            if self._basis != B.Symbolic:
+                basis_dict = self._basis.dict()
+                if basis_dict['g'] is not None:
+                    result = result.subs(g_sym, basis_dict['g'])
+                if basis_dict['h'] is not None:
+                    result = result.subs(h_sym, basis_dict['h'])
 
         return result
 
@@ -258,38 +322,58 @@ class _D:
         return f"D(n={self._n}, o={self._o}, e={self._e}): {self.as_expr()}"
 
     def __eq__(self, other) -> bool:
-        """Equality comparison based on n and o values."""
+        """Equality comparison based on n, o, and basis values."""
         if isinstance(other, _D):
-            return self._n == other._n and self._o == other._o
+            return self._n == other._n and self._o == other._o and self._basis == other._basis
         return False
 
     def __hash__(self) -> int:
-        """Hash based on n and o values."""
-        return hash((self._n, self._o))
+        """Hash based on n, o, and basis values."""
+        return hash((self._n, self._o, self._basis))
 
 
 @lru_cache(maxsize=1000)
-def _create_d_cached(n: int, o: int) -> _D:
-    """Create _D instance with LRU caching."""
-    return _D(n, o)
+def _create_d_cached(n: int, o: int, basis_hash: int) -> _D:
+    """Create _D instance with LRU caching based on (n, o, basis) combination."""
+    # Reconstruct basis from hash - this is a workaround since we can't cache
+    # Basis objects directly. In practice, most usage will be with common bases.
+    if basis_hash == hash(B.Symbolic):
+        basis = B.Symbolic
+    elif basis_hash == hash(B.Collatz):
+        basis = B.Collatz
+    elif basis_hash == hash(B.Collatz_5_2):
+        basis = B.Collatz_5_2
+    elif basis_hash == hash(B.Collatz_7_2):
+        basis = B.Collatz_7_2
+    elif basis_hash == hash(B.Collatz_5_4):
+        basis = B.Collatz_5_4
+    elif basis_hash == hash(B.Collatz_7_4):
+        basis = B.Collatz_7_4
+    else:
+        # For custom bases, we skip caching to avoid hash collisions
+        raise ValueError(f"Cannot reconstruct basis from hash {basis_hash}")
+    
+    return _D(n, o, basis=basis)
 
 
-def D(p: int) -> _D:
+def D(p: Optional[int] = None, n: Optional[int] = None, o: Optional[int] = None, basis: Optional[Basis] = None) -> _D:
     """
-    Factory function for creating D instances from p-values.
+    Factory function for creating D instances from p-values or bit counts.
 
-    This is the main entry point for creating D objects from
-    p-values. The function extracts the bit count information from the p-value
-    and creates a cached D instance for performance.
+    This is the main entry point for creating D objects. It supports multiple
+    calling patterns for maximum flexibility while maintaining backward compatibility.
 
     Args:
         p: Integer p-value from which to extract n and o (must be positive)
+        n: Total number of bits (alternative to p parameter)
+        o: Number of odd bits (alternative to p parameter) 
+        basis: The mathematical basis for this encoding (default: symbolic basis)
 
     Returns:
         _D instance representing the d-polynomial
 
     Raises:
-        ValueError: If p <= 0
+        ValueError: If parameters are invalid or inconsistent
 
     Mathematical Background:
         The p-value encodes path information where:
@@ -299,17 +383,37 @@ def D(p: int) -> _D:
         - The d-polynomial is d_p(g,h) = h^e - g^o
 
     Examples:
-        >>> d1 = D(133)  # Creates D polynomial from p=133
-        >>> print(d1.n(), d1.o(), d1.e())  # Shows bit counts: 7, 2, 5
-        >>> print(d1.as_expr())  # Shows h^5 - g^2
-        >>> result = d1.d(g=3, h=2)  # Evaluates to 23
+        >>> d1 = D(133)                    # Creates from p-value (legacy)
+        >>> d2 = D(133, basis=B.Collatz)   # Creates with specific basis
+        >>> d3 = D(n=7, o=2)              # Creates from bit counts
+        >>> d4 = D(n=7, o=2, basis=B.Collatz)  # Bit counts with basis
     """
-    if p <= 0:
-        raise ValueError("p-value must be positive")
+    # Set default basis
+    if basis is None:
+        basis = B.Symbolic
+    
+    # Handle different calling patterns
+    if p is not None:
+        # Pattern: D(p) or D(p, basis=...)
+        if n is not None or o is not None:
+            raise ValueError("Cannot specify both p and n/o parameters")
+        if p <= 0:
+            raise ValueError("p-value must be positive")
+        n = p.bit_length() - 1
+        o = p.bit_count() - 1
+    elif n is not None and o is not None:
+        # Pattern: D(n=..., o=...) or D(n=..., o=..., basis=...)
+        if n < 0 or o < 0 or o > n:
+            raise ValueError(f"Invalid bit counts: n={n}, o={o}")
+    else:
+        raise ValueError("Must specify either p or both n and o parameters")
 
-    n = p.bit_length() - 1
-    o = p.bit_count() - 1
-    return _create_d_cached(n, o)
+    # Use cached version for predefined bases
+    try:
+        return _create_d_cached(n, o, hash(basis))
+    except ValueError:
+        # Custom basis - skip caching
+        return _D(n, o, basis=basis)
 
 
 def clear_d_cache() -> None:

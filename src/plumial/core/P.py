@@ -47,6 +47,7 @@ from ..utils.symbolic import h as h_sym
 from ..utils.symbolic import u as u_sym
 from ..utils.symbolic import v as v_sym
 from .D import D
+from .basis import Basis, B, resolve_basis
 
 
 class _P:
@@ -73,13 +74,18 @@ class _P:
     """
 
     def __init__(
-        self, p: int, pred: Optional["_P"] = None, next: Optional["_P"] = None
+        self, 
+        p: int, 
+        basis: Optional[Basis] = None,
+        pred: Optional["_P"] = None, 
+        next: Optional["_P"] = None
     ) -> None:
         """
         Initialize a path polynomial.
 
         Args:
             p: The p-value (must be a positive integer)
+            basis: The mathematical basis for this encoding (default: symbolic basis)
             pred: Optional predecessor P instance for cycle linking
             next: Optional next P instance for cycle linking
 
@@ -87,6 +93,7 @@ class _P:
             This constructor is internal. Use P() factory function instead.
         """
         self._p: int = p
+        self._basis: Basis = basis if basis is not None else B.Symbolic
         self._d: Optional[D] = None
         self._next: Optional["_P"] = next
         self._pred: Optional["_P"] = pred
@@ -101,9 +108,9 @@ class _P:
         self._expr_uv: Optional[sy.Expr] = None
         self._expr_gh: Optional[sy.Expr] = None
 
-        # Initialize D object D(p)
+        # Initialize D object D(p) with same basis
         if self._d is None:
-            self._d = D(p)
+            self._d = D(p, basis=self._basis)
 
     def p(self) -> int:
         """Return the p-value."""
@@ -121,6 +128,48 @@ class _P:
         """Return the number of even bits."""
         return self.n() - self.o()
 
+    def basis(self) -> Basis:
+        """Return the basis of this encoding."""
+        return self._basis
+
+    def encode(
+        self, 
+        basis: Optional[Basis] = None, 
+        g: OptionalNumeric = None, 
+        h: OptionalNumeric = None
+    ) -> "_P":
+        """
+        Create a new P object encoded in a different basis.
+        
+        This method enables the transitive encoding property where P objects
+        can be transformed between different coordinate systems while preserving
+        the underlying p-value identity.
+        
+        Args:
+            basis: Target basis for encoding
+            g: g parameter for custom basis (alternative to basis parameter)
+            h: h parameter for custom basis (alternative to basis parameter)
+            
+        Returns:
+            New P object with same p-value but different basis
+            
+        Examples:
+            >>> p = P(281)                    # Symbolic basis
+            >>> collatz_p = p.encode(B.Collatz)  # Collatz basis
+            >>> custom_p = p.encode(g=5, h=2)    # Custom basis
+            >>> back_p = collatz_p.encode()      # Back to symbolic basis
+            >>> assert back_p == p              # Round-trip equality
+        """
+        # Handle empty encode() - return to symbolic basis
+        if basis is None and g is None and h is None:
+            return P(self._p, basis=B.Symbolic)
+        
+        # Resolve target basis
+        target_basis = resolve_basis(basis=basis, g=g, h=h)
+        
+        # Return new P object with same p-value but different basis
+        return P(self._p, basis=target_basis)
+
     def d(
         self, g: OptionalNumeric = None, h: OptionalNumeric = None
     ) -> NumericOrSymbolic:
@@ -128,8 +177,8 @@ class _P:
         Return the d-polynomial or its evaluation.
 
         Args:
-            g: Value to substitute for g parameter (default: keep symbolic)
-            h: Value to substitute for h parameter (default: keep symbolic)
+            g: Value to substitute for g parameter (default: use basis or keep symbolic)
+            h: Value to substitute for h parameter (default: use basis or keep symbolic)
 
         Returns:
             Difference polynomial h^e - g^o, either symbolic or evaluated
@@ -140,8 +189,16 @@ class _P:
             h**5 - g**2
             >>> p.d(g=3, h=2)  # Numerical evaluation
             23
+            >>> collatz_p = P(133).encode(B.Collatz)
+            >>> collatz_p.d()  # Uses basis automatically
+            23
         """
-        return self._d.d(g, h)
+        if g is not None or h is not None:
+            # Legacy path: use provided parameters  
+            return self._d.d(g, h)
+        else:
+            # New path: use basis
+            return self._d.d(**self._basis.dict())
 
     def D(self):
         """Return the D object."""
@@ -153,7 +210,7 @@ class _P:
             # Implement bit rotation for next p-value
             n = self.n()
             next_p = ((self._p - (1 << n)) | (self._p & 1) << n) >> 1 | (1 << n)
-            self._next = P(next_p, pred=self)
+            self._next = P(next_p, basis=self._basis, pred=self)
         return self._next
 
     def pred(self) -> "_P":
@@ -164,7 +221,7 @@ class _P:
             stop = 1 << n
             mask = stop - 1
             pred_p = (self._p << 1) & mask | (self._p & mask) >> (n - 1) | stop
-            self._pred = P(pred_p, next=self)
+            self._pred = P(pred_p, basis=self._basis, next=self)
         return self._pred
 
     def cycle(
@@ -223,11 +280,21 @@ class _P:
         The k polynomial is derived from the gh transformation of the uv polynomial.
 
         Args:
-            g: Value to substitute for g (default: keep symbolic)
-            h: Value to substitute for h (default: keep symbolic)
+            g: Value to substitute for g (default: use basis or keep symbolic)
+            h: Value to substitute for h (default: use basis or keep symbolic)
 
         Returns:
             k polynomial or its evaluation
+            
+        Examples:
+            >>> p = P(133)
+            >>> p.k()  # Symbolic form
+            # Returns symbolic k polynomial
+            >>> p.k(g=3, h=2)  # Legacy numerical evaluation
+            # Returns numerical value
+            >>> collatz_p = P(133).encode(B.Collatz)
+            >>> collatz_p.k()  # Uses basis automatically
+            # Returns numerical value using Collatz basis
         """
         if self._expr_k is None:
             # Calculate k from gh transformation of uv
@@ -241,11 +308,20 @@ class _P:
 
         result = self._expr_k
 
-        if g is not None:
-            result = result.subs(g_sym, g)
-
-        if h is not None:
-            result = result.subs(h_sym, h)
+        if g is not None or h is not None:
+            # Legacy path: use provided parameters
+            if g is not None:
+                result = result.subs(g_sym, g)
+            if h is not None:
+                result = result.subs(h_sym, h)
+        else:
+            # New path: use basis if it's not symbolic
+            if self._basis != B.Symbolic:
+                basis_dict = self._basis.dict()
+                if basis_dict['g'] is not None:
+                    result = result.subs(g_sym, basis_dict['g'])
+                if basis_dict['h'] is not None:
+                    result = result.subs(h_sym, basis_dict['h'])
 
         return result
 
@@ -490,24 +566,25 @@ class _P:
 
     def __eq__(self, other) -> bool:
         if isinstance(other, _P):
-            return self._p == other._p
+            return self._p == other._p and self._basis == other._basis
         return False
 
     def __hash__(self) -> int:
-        return hash(self._p)
+        return hash((self._p, self._basis))
 
 
 @lru_cache(maxsize=1000)
-def _create_p_cached(p: int) -> _P:
+def _create_p_cached(p: int, basis_hash: int) -> _P:
     """
-    Create _P instance with LRU caching.
+    Create _P instance with LRU caching based on (p-value, basis) combination.
 
     This internal function provides caching for P instances to improve performance
-    when the same p-values are accessed repeatedly. The cache uses LRU eviction
-    and has a maximum size of 1000 entries.
+    when the same (p-value, basis) combinations are accessed repeatedly. The cache
+    uses LRU eviction and has a maximum size of 1000 entries.
 
     Args:
         p: The p-value (positive integer)
+        basis_hash: Hash of the basis for cache key
 
     Returns:
         Cached or newly created _P instance
@@ -516,19 +593,39 @@ def _create_p_cached(p: int) -> _P:
         This function is internal and should not be called directly.
         Use the P() factory function instead.
     """
-    return _P(p)
+    # Reconstruct basis from hash - this is a workaround since we can't cache
+    # Basis objects directly. In practice, most usage will be with common bases.
+    if basis_hash == hash(B.Symbolic):
+        basis = B.Symbolic
+    elif basis_hash == hash(B.Collatz):
+        basis = B.Collatz
+    elif basis_hash == hash(B.Collatz_5_2):
+        basis = B.Collatz_5_2
+    elif basis_hash == hash(B.Collatz_7_2):
+        basis = B.Collatz_7_2
+    elif basis_hash == hash(B.Collatz_5_4):
+        basis = B.Collatz_5_4
+    elif basis_hash == hash(B.Collatz_7_4):
+        basis = B.Collatz_7_4
+    else:
+        # For custom bases, we skip caching to avoid hash collisions
+        # This is a safety measure - custom bases won't be cached
+        raise ValueError(f"Cannot reconstruct basis from hash {basis_hash}")
+    
+    return _P(p, basis=basis)
 
 
-def P(p, pred: Optional[_P] = None, next: Optional[_P] = None) -> _P:
+def P(p, basis: Optional[Basis] = None, pred: Optional[_P] = None, next: Optional[_P] = None) -> _P:
     """
     Factory function for creating P instances with improved caching.
 
     This is the main entry point for creating path objects in the plumial
     library. It provides intelligent caching for performance while supporting
-    cycle linking for predecessor/successor relationships.
+    basis-aware encoding and cycle linking for predecessor/successor relationships.
 
     Args:
         p: The p-value (positive integer or binary string representing the path)
+        basis: The mathematical basis for this encoding (default: symbolic basis)
         pred: Optional predecessor P instance for cycle linking
         next: Optional next P instance for cycle linking
 
@@ -539,11 +636,13 @@ def P(p, pred: Optional[_P] = None, next: Optional[_P] = None) -> _P:
         ValueError: If p <= 0 (p-values must be positive) or invalid binary string
 
     Examples:
-        >>> p1 = P(133)  # Uses cache
+        >>> p1 = P(133)  # Uses symbolic basis and cache
         >>> p2 = P(133)  # Returns same instance from cache
         >>> assert p1 is p2
         >>> p3 = P('10000101')  # Binary string for 133
         >>> assert p1.p() == p3.p()
+        >>> collatz_p = P(133, basis=B.Collatz)  # Different basis
+        >>> assert collatz_p != p1  # Different basis means different object
     """
     # Handle binary string input
     if isinstance(p, str):
@@ -556,13 +655,21 @@ def P(p, pred: Optional[_P] = None, next: Optional[_P] = None) -> _P:
     if not isinstance(p, int) or p <= 0:
         raise ValueError(f"p-value must be a positive integer, got: {p}")
 
+    # Set default basis
+    if basis is None:
+        basis = B.Symbolic
+
     if pred is None and next is None:
-        # Use cached version for simple cases
-        return _create_p_cached(p)
+        # Use cached version for simple cases with predefined bases
+        try:
+            return _create_p_cached(p, hash(basis))
+        except ValueError:
+            # Custom basis - skip caching
+            return _P(p, basis=basis)
     else:
         # Handle pred/next relationships outside cache
         # This ensures we don't cache instances with specific relationships
-        return _P(p, pred, next)
+        return _P(p, basis=basis, pred=pred, next=next)
 
 
 def clear_cache() -> None:
