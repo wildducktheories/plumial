@@ -20,13 +20,6 @@ from .binary import (
 )
 from .matrix_utils import eat_minus_1, expr_as_vector, vector_as_expr
 from .symbolic import (
-    COLLATZ_3_2,
-    COLLATZ_5_2,
-    COLLATZ_5_3,
-    COLLATZ_7_2,
-    COLLATZ_8_3,
-    COLLATZ_15_2,
-    COLLATZ_STD,
     TRANSFORM_GH_TO_UV,
     TRANSFORM_UV_TO_GH,
     F,
@@ -117,14 +110,6 @@ __all__ = [
     # Constants
     "two",
     "three",
-    # Substitution dictionaries
-    "COLLATZ_3_2",
-    "COLLATZ_5_2",
-    "COLLATZ_7_2",
-    "COLLATZ_15_2",
-    "COLLATZ_8_3",
-    "COLLATZ_5_3",
-    "COLLATZ_STD",
     # Transformation constants
     "TRANSFORM_UV_TO_GH",
     "TRANSFORM_GH_TO_UV",

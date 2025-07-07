@@ -48,16 +48,6 @@ q = sy.Symbol("q")  # Quotient variable
 two = sy.Integer(2)  # Constant 2
 three = sy.Integer(3)  # Constant 3
 
-# Common substitution dictionaries for evaluation
-COLLATZ_3_2 = {g: 3, h: 2}  # Standard Collatz (3x+1, /2)
-COLLATZ_5_2 = {g: 5, h: 2}  # 5x+1 variant
-COLLATZ_7_2 = {g: 7, h: 2}  # 7x+1 variant
-COLLATZ_15_2 = {g: 15, h: 2}  # 15x+1 variant
-COLLATZ_8_3 = {g: 8, h: 3}  # 8x+1, /3 variant
-COLLATZ_5_3 = {g: 5, h: 3}  # 5x+1, /3 variant
-
-# Standard alias
-COLLATZ_STD = COLLATZ_3_2  # Standard Collatz parameters
 
 # Transformation constants for u,v ↔ g,h conversions
 TRANSFORM_UV_TO_GH = {u: g * h, v: h}  # u→gh, v→h transformation
@@ -128,13 +118,6 @@ symbol_dict: Dict[str, sy.Symbol] = {
 
 # Substitution constants lookup
 substitution_dict = {
-    "COLLATZ_3_2": COLLATZ_3_2,
-    "COLLATZ_5_2": COLLATZ_5_2,
-    "COLLATZ_7_2": COLLATZ_7_2,
-    "COLLATZ_15_2": COLLATZ_15_2,
-    "COLLATZ_8_3": COLLATZ_8_3,
-    "COLLATZ_5_3": COLLATZ_5_3,
-    "COLLATZ_STD": COLLATZ_STD,
     "TRANSFORM_UV_TO_GH": TRANSFORM_UV_TO_GH,
     "TRANSFORM_GH_TO_UV": TRANSFORM_GH_TO_UV,
 }
