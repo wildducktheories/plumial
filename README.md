@@ -51,7 +51,8 @@ pip install plumial
 
 ```python
 from plumial import P
-from plumial.utils import S, I, F, COLLATZ_STD
+from plumial.core import B
+from plumial.utils import S, I, F
 
 # Create a polynomial for p-value 133
 p = P(133)
@@ -65,15 +66,17 @@ print(p.d())    # h**5 - g**2 (d-polynomial)
 print(p.k())    # k polynomial (symbolic)
 print(p.uv())   # UV polynomial representation
 
-# Evaluate numerically
-print(p.d(g=3, h=2))                    # Direct evaluation: 23
-print(p.d().subs(COLLATZ_STD))          # Using constants: 23
+# Evaluate numerically - modern basis approach
+print(p.encode(B.Collatz).d())              # Modern: 23
+
+# Legacy approach still works
+print(p.d(g=3, h=2))                        # Legacy: 23
 
 # Cycle operations with functional style
 odd_k_values = list(P(293).cycle(map=F.k(), filter=F.isodd))
 
 # Binary string constructor
-assert P((133) == P("10000101") # Equivalent results.
+assert P(133) == P("10000101")               # Equivalent results
 ```
 
 ### Advanced Analysis

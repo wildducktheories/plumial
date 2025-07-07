@@ -37,13 +37,14 @@ Here's a taste of what you'll find in the notebook:
 .. code-block:: python
 
    from plumial import P
-   from plumial.utils import S, COLLATZ_STD, F
+   from plumial.core import B
+   from plumial.utils import S, F
    
    # Create path object and explore
    p = P(133)
    display("Binary:", p.b())           # '10000101'  
    display("D polynomial:", p.d())     # h**5 - g**2
-   display("Evaluated:", p.d().subs(COLLATZ_STD))  # 23
+   display("Evaluated:", p.encode(B.Collatz).d())  # 23
    
    # Analyze forced vs unforced cycles  
    display(f"P(9) forced: {P(9).isforced()}")    # False (unforced)

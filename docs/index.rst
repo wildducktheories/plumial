@@ -20,7 +20,8 @@ Quick Start
 .. code-block:: python
 
    from plumial import P
-   from plumial.utils import S, I, F, COLLATZ_STD
+   from plumial.core import B
+   from plumial.utils import S, I, F
 
    # Create a polynomial for p-value 133
    p = P(133)
@@ -33,8 +34,8 @@ Quick Start
    print(p.k())  # Symbolic k polynomial
    
    # Evaluate numerically - multiple ways
-   print(p.d(g=3, h=2))           # Direct: 23
-   print(p.d().subs(COLLATZ_STD)) # Using constants: 23
+   print(p.d(g=3, h=2))                        # Legacy: 23
+   print(p.encode(B.Collatz).d())               # Modern basis approach: 23
    
    # Cycle operations with functional style
    odd_k_values = list(P(281).cycle(map=F.k(), filter=F.isodd))
