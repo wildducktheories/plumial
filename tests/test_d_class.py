@@ -14,18 +14,19 @@ def test_d_class_creation():
     """Test D class creation and basic properties."""
     clear_d_cache()
 
-    # Test with p=133
-    d_obj = D(133)
-    assert d_obj.n() == 7  # bit_length - 1
-    assert d_obj.o() == 2  # bit_count - 1
-    assert d_obj.e() == 5  # n - o
+    # Test with D(2, 5) - equivalent to old p=133
+    d_obj = D(2, 5)
+    assert d_obj.o() == 2
+    assert d_obj.e() == 5
+    assert d_obj.n() == 7  # computed as o + e
 
-    # Test with small p-values
-    for p_val in [3, 5, 9, 17]:
-        d_obj = D(p_val)
-        assert d_obj.n() == p_val.bit_length() - 1
-        assert d_obj.o() == p_val.bit_count() - 1
-        assert d_obj.e() == d_obj.n() - d_obj.o()
+    # Test with various o, e combinations
+    test_cases = [(1, 0), (1, 1), (1, 2), (1, 3)]  # equivalent to old p-values [3, 5, 9, 17]
+    for o_val, e_val in test_cases:
+        d_obj = D(o_val, e_val)
+        assert d_obj.o() == o_val
+        assert d_obj.e() == e_val
+        assert d_obj.n() == o_val + e_val
 
 
 def test_d_caching():
@@ -33,8 +34,8 @@ def test_d_caching():
     clear_d_cache()
 
     # Create instances and check caching
-    d1 = D(133)
-    d2 = D(133)
+    d1 = D(2, 5)
+    d2 = D(2, 5)
 
     # Should be the same object due to caching
     assert d1 is d2
@@ -47,7 +48,7 @@ def test_d_caching():
 
 def test_d_polynomial_evaluation():
     """Test d-polynomial evaluation."""
-    d_obj = D(133)
+    d_obj = D(2, 5)
 
     # Symbolic evaluation
     d_symbolic = d_obj.d()
@@ -58,24 +59,24 @@ def test_d_polynomial_evaluation():
     d_numeric = d_obj.encode(B.Collatz).d()
     assert isinstance(d_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
 
-    print(f"D(133) symbolic: {d_symbolic}")
-    print(f"D(133, g=3, h=2): {d_numeric}")
+    print(f"D(2, 5) symbolic: {d_symbolic}")
+    print(f"D(2, 5) with Collatz basis: {d_numeric}")
 
 
 def test_d_as_expr():
     """Test as_expr method."""
-    d_obj = D(133)
+    d_obj = D(2, 5)
     expr = d_obj.as_expr()
 
     assert isinstance(expr, sy.Expr)
     assert expr.has(g) or expr.has(h)
 
-    print(f"D(133).as_expr(): {expr}")
+    print(f"D(2, 5).as_expr(): {expr}")
 
 
 def test_d_str_repr():
     """Test string representations."""
-    d_obj = D(133)
+    d_obj = D(2, 5)
 
     str_repr = str(d_obj)
     repr_repr = repr(d_obj)
@@ -83,15 +84,15 @@ def test_d_str_repr():
     assert isinstance(str_repr, str)
     assert isinstance(repr_repr, str)
 
-    print(f"str(D(133)): {str_repr}")
-    print(f"repr(D(133)): {repr_repr}")
+    print(f"str(D(2, 5)): {str_repr}")
+    print(f"repr(D(2, 5)): {repr_repr}")
 
 
 def test_d_equality():
     """Test equality comparison."""
-    d1 = D(133)
-    d2 = D(133)
-    d3 = D(9)
+    d1 = D(2, 5)
+    d2 = D(2, 5)
+    d3 = D(1, 2)
 
     assert d1 == d2
     assert d1 != d3
@@ -102,48 +103,79 @@ def test_d_equality():
     assert hash(d1) != hash(d3)
 
 
+def test_d_factory_patterns():
+    """Test different D factory function calling patterns."""
+    # All these should create the same D object: o=2, e=5
+    d1 = D(2, 5)                    # Positional
+    d2 = D(o=2, e=5)               # Named o, e
+    d3 = D(o=2, n=7)               # Named o, n (compute e = n - o = 7 - 2 = 5)
+    d4 = D(e=5, n=7)               # Named e, n (compute o = n - e = 7 - 5 = 2)
+    d5 = D(o=2, e=5, n=7)          # All three (consistent)
+
+    # All should be equal
+    assert d1 == d2 == d3 == d4 == d5
+    assert all(d.o() == 2 and d.e() == 5 and d.n() == 7 for d in [d1, d2, d3, d4, d5])
+
+
+def test_d_factory_errors():
+    """Test D factory function error cases."""
+    # Test insufficient parameters
+    with pytest.raises(ValueError, match="Must specify exactly two"):
+        D(o=2)  # Only one parameter
+
+    with pytest.raises(ValueError, match="Must specify exactly two"):
+        D()  # No parameters
+
+    # Test negative results
+    with pytest.raises(ValueError, match="results in e=-2 < 0"):
+        D(o=5, n=3)  # e = n - o = 3 - 5 = -2
+
+    with pytest.raises(ValueError, match="results in o=-2 < 0"):
+        D(e=5, n=3)  # o = n - e = 3 - 5 = -2
+
+    # Test inconsistent parameters
+    with pytest.raises(ValueError, match="Inconsistent parameters"):
+        D(o=2, e=5, n=6)  # n != o + e (6 != 2 + 5)
+
+
 def test_d_mathematical_operations():
     """Test mathematical operations."""
-    d_obj = D(133)
+    d_obj = D(2, 5)
 
-    # Test factor method
-    try:
-        factored = d_obj.factor()
-        assert isinstance(factored, sy.Expr)
-        print(f"D(133).factor(): {factored}")
-    except Exception as e:
-        print(f"Factor failed: {e}")
+    # Test new c() method
+    c_symbolic = d_obj.c()
+    assert isinstance(c_symbolic, sy.Expr)
+    print(f"D(2, 5).c(): {c_symbolic}")
 
-    # Test expand method
-    try:
-        expanded = d_obj.expand()
-        assert isinstance(expanded, sy.Expr)
-        print(f"D(133).expand(): {expanded}")
-    except Exception as e:
-        print(f"Expand failed: {e}")
+    # Test c() with basis
+    c_numeric = d_obj.encode(B.Collatz).c()
+    assert isinstance(c_numeric, (int, float))
+    print(f"D(2, 5) Collatz c(): {c_numeric}")
 
-    # Test gcd method
-    try:
-        # Note: gcd method only takes g parameter, not h
-        gcd_val = d_obj.gcd(g=3)
-        assert isinstance(gcd_val, (int, float, sy.Expr))
-        print(f"D(133).gcd(3): {gcd_val}")
-    except Exception as e:
-        print(f"GCD failed: {e}")
+    # Test new r() method
+    r_symbolic = d_obj.r()
+    assert isinstance(r_symbolic, sy.Expr)
+    print(f"D(2, 5).r(): {r_symbolic}")
+
+    # Test r() with basis
+    r_numeric = d_obj.encode(B.Collatz).r()
+    assert isinstance(r_numeric, (int, float))
+    print(f"D(2, 5) Collatz r(): {r_numeric}")
 
 
 def test_d_edge_cases():
     """Test edge cases for D class."""
-    edge_cases = [2, 3, 4, 5]
+    edge_cases = [(1, 0), (1, 1), (0, 1), (0, 2)]  # (o, e) pairs
 
-    for p_val in edge_cases:
-        print(f"\n=== Testing D({p_val}) ===")
-        d_obj = D(p_val)
+    for o_val, e_val in edge_cases:
+        print(f"\n=== Testing D({o_val}, {e_val}) ===")
+        d_obj = D(o_val, e_val)
 
         # Basic properties
         assert d_obj.n() >= 0
         assert d_obj.o() >= 0
         assert d_obj.e() >= 0
+        assert d_obj.n() == d_obj.o() + d_obj.e()
 
         # Polynomial evaluation
         d_symbolic = d_obj.d()
@@ -152,23 +184,36 @@ def test_d_edge_cases():
         assert isinstance(d_symbolic, sy.Expr)
         assert isinstance(d_numeric, (int, float, sy.Rational, sy.Integer, sy.Float))
 
-        print(f"D({p_val}) = {d_symbolic}")
-        print(f"D({p_val}, g=3, h=2) = {d_numeric}")
+        print(f"D({o_val}, {e_val}) = {d_symbolic}")
+        print(f"D({o_val}, {e_val}) with Collatz basis = {d_numeric}")
 
 
-def test_d_quotient_remainder():
-    """Test quotient and remainder methods."""
-    d_obj = D(133)
+def test_d_new_methods():
+    """Test new c() and r() methods."""
+    d_obj = D(2, 5)
 
-    q_val = d_obj.q()
+    # Test c() method (ceiling)
+    c_val = d_obj.c()
+    assert isinstance(c_val, sy.Expr)
+    print(f"D(2, 5).c(): {c_val}")
+
+    # Test c() with Collatz basis
+    c_collatz = d_obj.encode(B.Collatz).c()
+    assert isinstance(c_collatz, (int, float))
+    print(f"D(2, 5) Collatz c(): {c_collatz}")
+
+    # Test r() method (remainder)
     r_val = d_obj.r()
+    assert isinstance(r_val, sy.Expr)
+    print(f"D(2, 5).r(): {r_val}")
 
-    assert isinstance(q_val, int)
-    assert isinstance(r_val, int)
-    assert r_val >= 0
-    assert r_val < d_obj.o() if d_obj.o() > 0 else r_val == 0
+    # Test r() with Collatz basis
+    r_collatz = d_obj.encode(B.Collatz).r()
+    assert isinstance(r_collatz, (int, float))
+    print(f"D(2, 5) Collatz r(): {r_collatz}")
 
-    print(f"D(133): q={q_val}, r={r_val}")
+    # Test relationship: r = c * o - e
+    assert r_collatz == c_collatz * d_obj.o() - d_obj.e()
 
 
 if __name__ == "__main__":

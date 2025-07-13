@@ -155,13 +155,13 @@ class TestDClassEncoding:
     
     def test_default_symbolic_basis(self):
         """Test that D objects default to symbolic basis."""
-        d = D(281)
+        d = D(3, 5)
         assert d.basis() == B.Symbolic
     
     def test_basis_construction(self):
         """Test creating D objects with specific basis."""
-        d_symbolic = D(281)
-        d_collatz = D(281, basis=B.Collatz)
+        d_symbolic = D(3, 5)
+        d_collatz = D(3, 5, basis=B.Collatz)
         
         assert d_symbolic.basis() == B.Symbolic
         assert d_collatz.basis() == B.Collatz
@@ -169,7 +169,7 @@ class TestDClassEncoding:
     
     def test_encode_method(self):
         """Test the encode method for basis transformation."""
-        d = D(281)
+        d = D(3, 5)
         
         # Encode to different bases
         collatz_d = d.encode(B.Collatz)
@@ -182,7 +182,7 @@ class TestDClassEncoding:
     
     def test_round_trip_equality(self):
         """Test round-trip encoding equality."""
-        d = D(281)
+        d = D(3, 5)
         collatz_d = d.encode(B.Collatz)
         back_d = collatz_d.encode()  # Empty encode returns to symbolic
         
@@ -191,8 +191,8 @@ class TestDClassEncoding:
     
     def test_alternative_construction(self):
         """Test D construction from n,o parameters."""
-        d1 = D(281)
-        d2 = D(n=8, o=3)  # Same as D(281): p=281 -> n=8, o=3
+        d1 = D(3, 5)
+        d2 = D(n=8, o=3)  # Same as D(3, 5): n=8, o=3, e=5
         d3 = D(n=8, o=3, basis=B.Collatz)
         
         assert d1.n() == d2.n() == 8
@@ -202,8 +202,8 @@ class TestDClassEncoding:
     
     def test_basis_aware_evaluation(self):
         """Test that encoded D objects use their basis automatically."""
-        d_symbolic = D(281)
-        d_collatz = D(281).encode(B.Collatz)
+        d_symbolic = D(3, 5)
+        d_collatz = D(3, 5).encode(B.Collatz)
         
         # Symbolic should remain symbolic
         expr_symbolic = d_symbolic.d()
@@ -231,10 +231,10 @@ class TestCaching:
     
     def test_d_caching_with_basis(self):
         """Test that D objects are cached correctly by (n, o, basis)."""
-        d1 = D(133)
-        d2 = D(133)
-        d3 = D(133, basis=B.Collatz)
-        d4 = D(133, basis=B.Collatz)
+        d1 = D(2, 5)
+        d2 = D(2, 5)
+        d3 = D(2, 5, basis=B.Collatz)
+        d4 = D(2, 5, basis=B.Collatz)
         
         assert d1 is d2  # Same basis, should be cached
         assert d3 is d4  # Same basis, should be cached

@@ -23,7 +23,7 @@ def test_p_d_integration():
     d_obj = p_obj.D()
 
     # Create D object directly
-    d_direct = D(p_val)
+    d_direct = D(2, 5)  # D(133) -> D(2, 5)
 
     # They should be equivalent
     assert d_obj.n() == d_direct.n()
@@ -116,7 +116,7 @@ def test_binary_operations_integration():
 def test_d_integration():
     """Test D objects work correctly."""
     # Create D object from p-value
-    d_obj = D(21)  # This gives us n=4, o=2, e=2
+    d_obj = D(2, 2)  # This gives us n=4, o=2, e=2
 
     # Test that it has correct properties
     assert d_obj.n() == 4
@@ -141,7 +141,7 @@ def test_caching_integration():
     d_obj1 = p_obj.D()
 
     # Create D object directly
-    d_obj2 = D(133)
+    d_obj2 = D(2, 5)
 
     # They should be the same cached object
     assert d_obj1 is d_obj2
@@ -158,7 +158,7 @@ def test_caching_integration():
 def test_symbolic_consistency():
     """Test that symbolic operations are consistent."""
     p_obj = P(133)
-    d_obj = D(133)
+    d_obj = D(2, 5)
 
     # Compare symbolic expressions
     p_d_symbolic = p_obj.d()
@@ -207,12 +207,18 @@ def test_performance_with_large_cycles():
 def test_edge_case_integration():
     """Test edge cases where P and D work together."""
     edge_cases = [2, 3, 4, 5, 6, 7, 8]
+    # Map p_val to (o, e) for D constructor
+    d_conversions = {
+        2: (0, 1), 3: (1, 0), 4: (0, 2), 5: (1, 1),
+        6: (1, 1), 7: (2, 0), 8: (0, 3)
+    }
 
     for p_val in edge_cases:
         print(f"\n=== Testing integration edge case p={p_val} ===")
 
         p_obj = P(p_val)
-        d_obj = D(p_val)
+        o, e = d_conversions[p_val]
+        d_obj = D(o, e)
 
         # Basic properties should match
         assert p_obj.n() == d_obj.n()
