@@ -138,8 +138,8 @@ Work directly with D objects for algebraic analysis:
 
    from plumial import D
    
-   # Create d polynomial from p-value
-   d = D(133)
+   # Create d polynomial from odd and even bit counts
+   d = D(2, 5)
    
    # Mathematical operations
    print(d.d())  # h**5 - g**2

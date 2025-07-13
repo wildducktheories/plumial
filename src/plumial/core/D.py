@@ -24,10 +24,11 @@ Mathematical Background:
 
 Examples:
     >>> from plumial.core.D import D
-    >>> d = D(133)  # Create from p-value 133
-    >>> print(d.n(), d.o(), d.e())  # 7, 2, 5
+    >>> from plumial.core.basis import B
+    >>> d = D(2, 5)  # Create from o=2, e=5 (h^5 - g^2)
+    >>> print(d.o(), d.e(), d.n())  # 2, 5, 7
     >>> poly = d.d()  # Get symbolic form: h^5 - g^2
-    >>> collatz_d = d.encode(g=3, h=2)  # Encode for Collatz evaluation
+    >>> collatz_d = d.encode(B.Collatz)  # Encode for Collatz evaluation
     >>> result = collatz_d.d()  # Evaluate: 2^5 - 3^2 = 32 - 9 = 23
 """
 
@@ -71,37 +72,42 @@ class _D:
         - The polynomial form: h^e - g^o
 
     Attributes:
-        _n: Total number of bits
         _o: Number of odd bits
-        _e: Number of even bits (computed as n - o)
+        _e: Number of even bits
+        _n: Total number of bits (computed as o + e)
         _expr: Cached symbolic expression
     """
 
-    def __init__(self, n: int, o: int, basis: Optional[Basis] = None) -> None:
+    def __init__(self, o: int, e: int, basis: Optional[Basis] = None) -> None:
         """
-        Initialize d-polynomial from bit counts.
+        Initialize d-polynomial from odd and even bit counts.
 
         Args:
-            n: Total number of bits (must be >= 0)
-            o: Number of odd bits (must be >= 0 and <= n)
+            o: Number of odd bits (must be >= 0)
+            e: Number of even bits (must be >= 0)
             basis: The mathematical basis for this encoding (default: symbolic basis)
 
         Raises:
-            ValueError: If n < 0, o < 0, or o > n
+            ValueError: If o < 0 or e < 0
 
         Note:
             This constructor is internal. Use D() factory function instead.
         """
-        self._n = n
+        if o < 0:
+            raise ValueError(f"Number of odd bits must be >= 0, got o={o}")
+        if e < 0:
+            raise ValueError(f"Number of even bits must be >= 0, got e={e}")
+
         self._o = o
-        self._e = n - o
+        self._e = e
+        self._n = o + e
         self._basis = basis if basis is not None else B.Symbolic
 
         # Cached symbolic expression
         self._expr = None
 
     def n(self) -> int:
-        """Return total number of bits."""
+        """Return total number of bits (computed as o + e)."""
         return self._n
 
     def o(self) -> int:
@@ -132,9 +138,9 @@ class _D:
             c = ceil(log_h(g)) = ceil(log(g) / log(h))
             
         Examples:
-            >>> d = D(133)
+            >>> d = D(2, 5)
             >>> d.c()  # Symbolic form
-            >>> collatz_d = D(133).encode(B.Collatz)
+            >>> collatz_d = D(2, 5).encode(B.Collatz)
             >>> collatz_d.c()  # Numerical evaluation for g=3, h=2
         """
         # Get basis parameters
@@ -167,9 +173,9 @@ class _D:
             r = c * o - e = ceil(log_h(g)) * o - e
             
         Examples:
-            >>> d = D(133)  # o=2, e=5
+            >>> d = D(2, 5)
             >>> d.r()  # Symbolic form
-            >>> collatz_d = D(133).encode(B.Collatz)
+            >>> collatz_d = D(2, 5).encode(B.Collatz)
             >>> collatz_d.r()  # Numerical evaluation: 2 * 2 - 5 = -1
         """
         c_val = self.c()
@@ -203,7 +209,7 @@ class _D:
             New D object with same n,o values but different basis
             
         Examples:
-            >>> d = D(133)                    # Symbolic basis
+            >>> d = D(2, 5)                   # Symbolic basis
             >>> collatz_d = d.encode(B.Collatz)  # Collatz basis
             >>> custom_d = d.encode(g=5, h=2)    # Custom basis
             >>> back_d = collatz_d.encode()      # Back to symbolic basis
@@ -211,13 +217,13 @@ class _D:
         """
         # Handle empty encode() - return to symbolic basis
         if basis is None and g is None and h is None:
-            return D(p=None, n=self._n, o=self._o, basis=B.Symbolic)
+            return D(self._o, self._e, basis=B.Symbolic)
         
         # Resolve target basis
         target_basis = resolve_basis(basis=basis, g=g, h=h)
         
-        # Return new D object with same n,o but different basis
-        return D(p=None, n=self._n, o=self._o, basis=target_basis)
+        # Return new D object with same o,e but different basis
+        return D(self._o, self._e, basis=target_basis)
 
     def as_expr(self) -> sy.Expr:
         """
@@ -238,10 +244,10 @@ class _D:
             Evaluated expression or symbolic form
             
         Examples:
-            >>> d = D(133)
+            >>> d = D(2, 5)
             >>> d.d()  # Symbolic form
             h**5 - g**2
-            >>> collatz_d = D(133).encode(B.Collatz)
+            >>> collatz_d = D(2, 5).encode(B.Collatz)
             >>> collatz_d.d()  # Uses basis automatically
             23
         """
@@ -267,7 +273,7 @@ class _D:
 
     def __repr__(self) -> str:
         """Detailed string representation."""
-        return f"D(n={self._n}, o={self._o}, e={self._e}): {self.as_expr()}"
+        return f"D(o={self._o}, e={self._e}): {self.as_expr()}"
 
     def __eq__(self, other) -> bool:
         """Equality comparison based on n, o, and basis values."""
@@ -281,8 +287,8 @@ class _D:
 
 
 @lru_cache(maxsize=1000)
-def _create_d_cached(n: int, o: int, basis_hash: int) -> _D:
-    """Create _D instance with LRU caching based on (n, o, basis) combination."""
+def _create_d_cached(o: int, e: int, basis_hash: int) -> _D:
+    """Create _D instance with LRU caching based on (o, e, basis) combination."""
     # Reconstruct basis from hash - this is a workaround since we can't cache
     # Basis objects directly. In practice, most usage will be with common bases.
     if basis_hash == hash(B.Symbolic):
@@ -301,67 +307,82 @@ def _create_d_cached(n: int, o: int, basis_hash: int) -> _D:
         # For custom bases, we skip caching to avoid hash collisions
         raise ValueError(f"Cannot reconstruct basis from hash {basis_hash}")
     
-    return _D(n, o, basis=basis)
+    return _D(o, e, basis=basis)
 
 
-def D(p: Optional[int] = None, n: Optional[int] = None, o: Optional[int] = None, basis: Optional[Basis] = None) -> _D:
+def D(o: Optional[int] = None,
+      e: Optional[int] = None,
+      n: Optional[int] = None,
+      basis: Optional[Basis] = None) -> _D:
     """
-    Factory function for creating D instances from p-values or bit counts.
+    Factory function for creating D instances from bit counts.
 
     This is the main entry point for creating D objects. It supports multiple
-    calling patterns for maximum flexibility while maintaining backward compatibility.
+    calling patterns for flexibility.
 
     Args:
-        p: Integer p-value from which to extract n and o (must be positive)
-        n: Total number of bits (alternative to p parameter)
-        o: Number of odd bits (alternative to p parameter) 
+        o: Number of odd bits
+        e: Number of even bits
+        n: Total number of bits (alternative parameter)
         basis: The mathematical basis for this encoding (default: symbolic basis)
 
     Returns:
-        _D instance representing the d-polynomial
+        _D instance representing the d-polynomial h^e - g^o
 
     Raises:
         ValueError: If parameters are invalid or inconsistent
 
-    Mathematical Background:
-        The p-value encodes path information where:
-        - n = bit_length(p) - 1 (total path bits)
-        - o = bit_count(p) - 1 (odd path bits)
-        - e = n - o (even path bits)
-        - The d-polynomial is d_p(g,h) = h^e - g^o
+    Usage Patterns:
+        - D(o, e): Direct polynomial specification h^e - g^o
+        - D(o=2, e=5): Named parameters
+        - D(o=2, n=7): Named, compute e = n - o
+        - D(e=5, n=7): Named, compute o = n - e
 
     Examples:
-        >>> d1 = D(133)                    # Creates from p-value (legacy)
-        >>> d2 = D(133, basis=B.Collatz)   # Creates with specific basis
-        >>> d3 = D(n=7, o=2)              # Creates from bit counts
-        >>> d4 = D(n=7, o=2, basis=B.Collatz)  # Bit counts with basis
+        >>> d1 = D(2, 5)                    # h^5 - g^2
+        >>> d2 = D(o=2, e=5, basis=B.Collatz)  # With specific basis
+        >>> d3 = D(o=2, n=7)               # Compute e = 7 - 2 = 5
+        >>> d4 = D(e=5, n=7)               # Compute o = 7 - 5 = 2
     """
     # Set default basis
     if basis is None:
         basis = B.Symbolic
     
-    # Handle different calling patterns
-    if p is not None:
-        # Pattern: D(p) or D(p, basis=...)
-        if n is not None or o is not None:
-            raise ValueError("Cannot specify both p and n/o parameters")
-        if p <= 0:
-            raise ValueError("p-value must be positive")
-        n = p.bit_length() - 1
-        o = p.bit_count() - 1
-    elif n is not None and o is not None:
-        # Pattern: D(n=..., o=...) or D(n=..., o=..., basis=...)
-        if n < 0 or o < 0 or o > n:
-            raise ValueError(f"Invalid bit counts: n={n}, o={o}")
+    # Count how many parameters are provided
+    provided = sum(x is not None for x in [o, e, n])
+
+    if provided == 2:
+        if o is not None and e is not None:
+            # D(o, e) or D(o=2, e=5) - direct specification
+            pass  # o and e are already set
+        elif o is not None and n is not None:
+            # D(o=2, n=7) - compute e = n - o
+            e = n - o
+            if e < 0:
+                raise ValueError(f"Invalid: n={n}, o={o} results in e={e} < 0")
+        elif e is not None and n is not None:
+            # D(e=5, n=7) - compute o = n - e
+            o = n - e
+            if o < 0:
+                raise ValueError(f"Invalid: n={n}, e={e} results in o={o} < 0")
+        else:
+            raise ValueError("Must specify exactly two of (o, e, n)")
+    elif provided == 3:
+        # All three provided - validate consistency
+        if n != o + e:
+            raise ValueError(
+                f"Inconsistent parameters: n={n} but o+e={o}+{e}={o+e}. "
+                f"Specify exactly two of (o, e, n)."
+            )
     else:
-        raise ValueError("Must specify either p or both n and o parameters")
+        raise ValueError("Must specify exactly two of (o, e, n)")
 
     # Use cached version for predefined bases
     try:
-        return _create_d_cached(n, o, hash(basis))
+        return _create_d_cached(o, e, hash(basis))
     except ValueError:
         # Custom basis - skip caching
-        return _D(n, o, basis=basis)
+        return _D(o, e, basis=basis)
 
 
 def clear_d_cache() -> None:
@@ -374,9 +395,9 @@ def clear_d_cache() -> None:
     instances rather than returning cached ones.
 
     Examples:
-        >>> d1 = D(133)
+        >>> d1 = D(2, 5)
         >>> clear_d_cache()
-        >>> d2 = D(133)
+        >>> d2 = D(2, 5)
         >>> assert d1 is not d2  # Different instances after cache clear
     """
     _create_d_cached.cache_clear()

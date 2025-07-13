@@ -221,7 +221,7 @@ def is_d_polynomial_like(obj: Any) -> bool:
 
     Examples:
         >>> from plumial.core.D import D
-        >>> d_obj = D(133)
+        >>> d_obj = D(2, 5)
         >>> is_d_polynomial_like(d_obj)
         True
         >>> is_d_polynomial_like("not a polynomial")

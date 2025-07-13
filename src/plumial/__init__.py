@@ -52,7 +52,7 @@ Examples:
     >>> print(f"k(3,2) = {k_value}")
     >>>
     >>> # Create d-polynomial
-    >>> d = D(133)
+    >>> d = D(2, 5)
     >>> print(f"Difference polynomial: {d.d()}")  # h^5 - g^2
     >>> collatz_d = d.encode(g=3, h=2)
     >>> print(f"Evaluated at g=3, h=2: {collatz_d.d()}")  # 23
