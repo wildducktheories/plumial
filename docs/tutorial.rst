@@ -36,18 +36,21 @@ P objects provide several polynomial representations:
 
 .. code-block:: python
 
+   from plumial.core import B
+   
    # d-polynomial (symbolic)
    print(p.d())  # h**5 - g**2
    
-   # Evaluate numerically
-   print(p.d(g=3, h=2))  # 23
-   
-   # K polynomial
+   # K polynomial (symbolic)
    print(p.k())  # Symbolic k polynomial
-   print(p.k(g=3, h=2))  # Numerical evaluation
    
    # UV polynomial representation
    print(p.uv())  # Polynomial in u and v variables
+   
+   # Evaluate numerically using basis encoding
+   collatz_p = p.encode(B.Collatz)
+   print(collatz_p.d())  # 23
+   print(collatz_p.k())  # Numerical evaluation
 
 Cycle Navigation
 ~~~~~~~~~~~~~~~~
@@ -90,14 +93,15 @@ The F namespace provides functional programming utilities:
 
 .. code-block:: python
 
-   # Create curried functions
-   k_func = F.k(g=3, h=2)  # Returns lambda p: p.k(3, 2)
+   # Create curried functions for encoded objects
+   collatz_p = p.encode(B.Collatz)
+   k_func = F.k()  # Returns lambda p: p.k()
    
    # Use with cycle operations
-   k_values = list(p.cycle(map=k_func))
+   k_values = list(collatz_p.cycle(map=k_func))
    
    # Filter odd elements and map to k values
-   odd_k_values = list(p.cycle(map=F.k(), filter=F.isodd))
+   odd_k_values = list(collatz_p.cycle(map=F.k(), filter=F.isodd))
    
    # Compose operations
    composed = F.compose(F.n, F.next)
@@ -114,7 +118,8 @@ Convert cycle data to pandas DataFrames for analysis:
    from plumial.utils import F
    
    # Convert cycle to DataFrame
-   df = F.to_dataframe(P(133).cycle(), g=3, h=2)
+   collatz_p133 = P(133).encode(B.Collatz)
+   df = F.to_dataframe(collatz_p133.cycle())
    print(df.head())
    
    # Analyze patterns

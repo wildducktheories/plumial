@@ -51,6 +51,7 @@ Here's a taste of what you'll find in the notebook:
    display(f"P(291) forced: {P(291).isforced()}") # True (forced)
    
    # Functional operations on cycles
-   odd_k_values = list(P(281).cycle(map=F.k(), filter=F.isodd))
+   collatz_p281 = P(281).encode(B.Collatz)
+   odd_k_values = list(collatz_p281.cycle(map=F.k(), filter=F.isodd))
 
 **→ `Open the full notebook <https://github.com/wildducktheories/plumial/blob/main/examples.ipynb>`_ for complete examples**

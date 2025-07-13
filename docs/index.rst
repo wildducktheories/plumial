@@ -33,9 +33,8 @@ Quick Start
    print(p.d())  # h**5 - g**2
    print(p.k())  # Symbolic k polynomial
    
-   # Evaluate numerically - multiple ways
-   print(p.d(g=3, h=2))                        # Legacy: 23
-   print(p.encode(B.Collatz).d())               # Modern basis approach: 23
+   # Evaluate numerically using basis encoding
+   print(p.encode(B.Collatz).d())               # Evaluates with g=3, h=2: 23
    
    # Cycle operations with functional style
    odd_k_values = list(P(281).cycle(map=F.k(), filter=F.isodd))

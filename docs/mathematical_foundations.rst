@@ -440,7 +440,7 @@ The library structure mirrors the mathematical hierarchy:
    p.uv()
    
    # Layer 3: k polynomials
-   p.k(), p.k(g=3, h=2)
+   p.k(), p.encode(B.Collatz).k()
    
    # Layer 4: d polynomials and identities
    p.d(), p.ax(), p.f()
