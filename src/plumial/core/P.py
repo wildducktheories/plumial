@@ -109,9 +109,9 @@ class _P:
         self._expr_uv: Optional[sy.Expr] = None
         self._expr_gh: Optional[sy.Expr] = None
 
-        # Initialize D object D(p) with same basis
+        # Initialize D object with same basis
         if self._d is None:
-            self._d = D(p, basis=self._basis)
+            self._d = D(self.o(), self.e(), basis=self._basis)
 
     def p(self) -> int:
         """Return the p-value."""

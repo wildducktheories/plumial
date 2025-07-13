@@ -19,6 +19,7 @@
       _P.ax
       _P.b
       _P.basis
+      _P.c
       _P.cycle
       _P.d
       _P.e
@@ -31,6 +32,7 @@
       _P.o
       _P.p
       _P.pred
+      _P.r
       _P.uv
       _P.x
    
