@@ -225,9 +225,12 @@ class _D:
         # Return new D object with same o,e but different basis
         return D(self._o, self._e, basis=target_basis)
 
-    def as_expr(self) -> sy.Expr:
+    def _as_expr(self) -> sy.Expr:
         """
         Return the symbolic expression h^e - g^o.
+        
+        Private method for internal use. External code should use d() method
+        or SymPy integration methods (__add__, __mul__, etc.).
 
         Returns:
             SymPy expression representing the d-polynomial
@@ -251,7 +254,7 @@ class _D:
             >>> collatz_d.d()  # Uses basis automatically
             23
         """
-        result = self.as_expr()
+        result = self._as_expr()
 
         # Use basis if it's not symbolic
         if self._basis != B.Symbolic:
@@ -301,11 +304,117 @@ class _D:
 
     def __str__(self) -> str:
         """String representation showing the polynomial."""
-        return str(self.as_expr())
+        return str(self._as_expr())
 
     def __repr__(self) -> str:
-        """Detailed string representation."""
-        return f"D(o={self._o}, e={self._e}): {self.as_expr()}"
+        """String representation showing the polynomial."""
+        return repr(self._as_expr())
+
+    # SymPy integration methods
+    def _sympy_(self) -> sy.Expr:
+        """
+        SymPy conversion method - allows D objects to participate in SymPy expressions.
+        
+        This method is called automatically by SymPy when a D object is used
+        in mathematical expressions, enabling seamless integration with symbolic math.
+        
+        Returns:
+            SymPy expression representing the d-polynomial h^e - g^o
+            
+        Examples:
+            >>> d = D(2, 5)
+            >>> expr = d + sy.Symbol('x')  # Automatically calls _sympy_()
+            >>> result = sy.expand(expr * 2)  # Works with all SymPy operations
+        """
+        return self._as_expr()
+    
+    def __add__(self, other) -> sy.Expr:
+        """
+        Addition with other expressions.
+        
+        Enables expressions like: D(2, 5) + x or D(1, 2) + D(3, 4)
+        
+        Args:
+            other: Another D object, SymPy expression, or numeric value
+            
+        Returns:
+            SymPy expression representing the sum
+        """
+        if isinstance(other, _D):
+            return self._as_expr() + other._as_expr()
+        return self._as_expr() + other
+    
+    def __radd__(self, other) -> sy.Expr:
+        """Right addition - handles x + D(2, 5)."""
+        return other + self._as_expr()
+    
+    def __sub__(self, other) -> sy.Expr:
+        """
+        Subtraction with other expressions.
+        
+        Enables expressions like: D(2, 5) - x or D(3, 4) - D(1, 2)
+        """
+        if isinstance(other, _D):
+            return self._as_expr() - other._as_expr()
+        return self._as_expr() - other
+    
+    def __rsub__(self, other) -> sy.Expr:
+        """Right subtraction - handles x - D(2, 5)."""
+        return other - self._as_expr()
+    
+    def __mul__(self, other) -> sy.Expr:
+        """
+        Multiplication with other expressions.
+        
+        Enables expressions like: D(2, 5) * x or D(1, 2) * D(3, 4)
+        
+        Args:
+            other: Another D object, SymPy expression, or numeric value
+            
+        Returns:
+            SymPy expression representing the product
+        """
+        if isinstance(other, _D):
+            return self._as_expr() * other._as_expr()
+        return self._as_expr() * other
+    
+    def __rmul__(self, other) -> sy.Expr:
+        """Right multiplication - handles x * D(2, 5)."""
+        return other * self._as_expr()
+    
+    def __truediv__(self, other) -> sy.Expr:
+        """
+        Division with other expressions.
+        
+        Enables expressions like: D(2, 5) / x or D(3, 4) / D(1, 2)
+        """
+        if isinstance(other, _D):
+            return self._as_expr() / other._as_expr()
+        return self._as_expr() / other
+    
+    def __rtruediv__(self, other) -> sy.Expr:
+        """Right division - handles x / D(2, 5)."""
+        return other / self._as_expr()
+    
+    def __pow__(self, other) -> sy.Expr:
+        """
+        Exponentiation with other expressions.
+        
+        Enables expressions like: D(2, 5) ** 2 or D(1, 2) ** x
+        """
+        return self._as_expr() ** other
+    
+    def __rpow__(self, other) -> sy.Expr:
+        """Right exponentiation - handles x ** D(2, 5)."""
+        return other ** self._as_expr()
+    
+    def __neg__(self) -> sy.Expr:
+        """Negation - handles -D(2, 5)."""
+        return -self._as_expr()
+    
+    def __pos__(self) -> sy.Expr:
+        """Positive - handles +D(2, 5)."""
+        return +self._as_expr()
 
     def __eq__(self, other) -> bool:
         """Equality comparison based on n, o, and basis values."""

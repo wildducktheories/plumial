@@ -28,7 +28,7 @@ def test_d_symbolic_expression():
     """Test symbolic expression generation."""
     d = D(2, 2)  # n=4, o=2, e=2
 
-    expr = d.as_expr()
+    expr = d._as_expr()
     expected = h**2 - g**2
 
     assert expr == expected
@@ -74,13 +74,13 @@ def test_d_edge_cases():
     d_zero_o = D(0, 3)
     assert d_zero_o.o() == 0
     assert d_zero_o.e() == 3
-    assert d_zero_o.as_expr() == h**3 - 1  # g^0 = 1
+    assert d_zero_o._as_expr() == h**3 - 1  # g^0 = 1
 
     # Case where e = 0
     d_zero_e = D(2, 0)
     assert d_zero_e.o() == 2
     assert d_zero_e.e() == 0
-    assert d_zero_e.as_expr() == 1 - g**2  # h^0 = 1
+    assert d_zero_e._as_expr() == 1 - g**2  # h^0 = 1
 
 
 def test_d_equality_and_hashing():
@@ -103,8 +103,14 @@ def test_d_representation():
     expr_str = str(d)
     assert "h**2" in expr_str
     assert "g**2" in expr_str
-    assert "D(o=2, e=2)" in repr(d)
-    assert "h**2" in repr(d) and "g**2" in repr(d)
+    
+    # repr should now be the same as the expression repr (no D(o=..., e=...) prefix)
+    repr_str = repr(d)
+    assert "h**2" in repr_str and "g**2" in repr_str
+    
+    # Test that D repr equals SymPy expression repr
+    assert repr(d) == repr(d._as_expr())
+    assert repr(d) == repr(d * 1)  # This is the key requirement
 
 
 def test_d_integration_with_p():
@@ -121,5 +127,5 @@ def test_d_integration_with_p():
     assert d.e() == d_direct.e()
 
     # Test polynomial evaluation through P
-    assert p.d() == d.as_expr()
+    assert p.d() == d._as_expr()
     assert p.encode(g=3, h=2).d() == d.encode(g=3, h=2).d()
