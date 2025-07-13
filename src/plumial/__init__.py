@@ -46,14 +46,16 @@ Examples:
     >>> uv_poly = p.uv()
     >>> print(f"uv polynomial: {uv_poly}")
     >>>
-    >>> # Evaluate k polynomial
-    >>> k_value = p.k(g=3, h=2)
+    >>> # Evaluate k polynomial using modern encoding approach
+    >>> collatz_p = p.encode(g=3, h=2)
+    >>> k_value = collatz_p.k()
     >>> print(f"k(3,2) = {k_value}")
     >>>
     >>> # Create d-polynomial
     >>> d = D(133)
     >>> print(f"Difference polynomial: {d.d()}")  # h^5 - g^2
-    >>> print(f"Evaluated at g=3, h=2: {d.d(g=3, h=2)}")  # 23
+    >>> collatz_d = d.encode(g=3, h=2)
+    >>> print(f"Evaluated at g=3, h=2: {collatz_d.d()}")  # 23
 
 Installation:
     pip install plumial

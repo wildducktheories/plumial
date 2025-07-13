@@ -186,15 +186,9 @@ class _D:
             self._expr = h_sym**self._e - g_sym**self._o
         return self._expr
 
-    def d(
-        self, g: OptionalNumeric = None, h: OptionalNumeric = None
-    ) -> NumericOrSymbolic:
+    def d(self) -> NumericOrSymbolic:
         """
         Evaluate the d-polynomial.
-
-        Args:
-            g: Value to substitute for g (default: use basis or keep symbolic)
-            h: Value to substitute for h (default: use basis or keep symbolic)
 
         Returns:
             Evaluated expression or symbolic form
@@ -203,28 +197,19 @@ class _D:
             >>> d = D(133)
             >>> d.d()  # Symbolic form
             h**5 - g**2
-            >>> d.d(g=3, h=2)  # Legacy numerical evaluation
-            23
             >>> collatz_d = D(133).encode(B.Collatz)
             >>> collatz_d.d()  # Uses basis automatically
             23
         """
         result = self.as_expr()
 
-        if g is not None or h is not None:
-            # Legacy path: use provided parameters
-            if g is not None:
-                result = result.subs(g_sym, g)
-            if h is not None:
-                result = result.subs(h_sym, h)
-        else:
-            # New path: use basis if it's not symbolic
-            if self._basis != B.Symbolic:
-                basis_dict = self._basis.dict()
-                if basis_dict['g'] is not None:
-                    result = result.subs(g_sym, basis_dict['g'])
-                if basis_dict['h'] is not None:
-                    result = result.subs(h_sym, basis_dict['h'])
+        # Use basis if it's not symbolic
+        if self._basis != B.Symbolic:
+            basis_dict = self._basis.dict()
+            if basis_dict['g'] is not None:
+                result = result.subs(g_sym, basis_dict['g'])
+            if basis_dict['h'] is not None:
+                result = result.subs(h_sym, basis_dict['h'])
 
         return result
 

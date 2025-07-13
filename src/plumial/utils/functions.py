@@ -15,7 +15,7 @@ Usage Patterns:
     >>> F.d(p_obj)  # Get d-polynomial
     >>>
     >>> # Curried functions
-    >>> k_func = F.k(g=3, h=2)  # Returns lambda p: p.k(3, 2)
+    >>> k_func = F.k()  # Returns lambda p: p.k()
     >>> values = [k_func(p) for p in cycle]
     >>>
     >>> # Filters
@@ -89,76 +89,52 @@ def p(p: PValueProtocol) -> int:
 
 
 # Curried getter functions
-def a(
-    g: OptionalNumeric = None, h: OptionalNumeric = None
-) -> Callable[[PValueProtocol], Any]:
+def a() -> Callable[[PValueProtocol], Any]:
     """
     Return curried function for a-value extraction.
-
-    Args:
-        g: Optional g parameter for evaluation
-        h: Optional h parameter for evaluation
 
     Returns:
         Lambda function that extracts a-value from P-object
 
     Examples:
-        >>> a_func = F.a(g=3, h=2)
-        >>> result = a_func(p_obj)  # Equivalent to p_obj.a(3, 2)
+        >>> a_func = F.a()
+        >>> result = a_func(p_obj)  # Equivalent to p_obj.a()
     """
-    return lambda p_obj: p_obj.a(g, h)
+    return lambda p_obj: p_obj.a()
 
 
-def f(
-    g: OptionalNumeric = None, h: OptionalNumeric = None
-) -> Callable[[PValueProtocol], Any]:
+def f() -> Callable[[PValueProtocol], Any]:
     """
     Return curried function for f-value extraction.
-
-    Args:
-        g: Optional g parameter for evaluation
-        h: Optional h parameter for evaluation
 
     Returns:
         Lambda function that extracts f-value from P-object
     """
-    return lambda p_obj: p_obj.f(g, h)
+    return lambda p_obj: p_obj.f()
 
 
-def k(
-    g: OptionalNumeric = None, h: OptionalNumeric = None
-) -> Callable[[PValueProtocol], Any]:
+def k() -> Callable[[PValueProtocol], Any]:
     """
     Return curried function for k-value extraction.
-
-    Args:
-        g: Optional g parameter for evaluation
-        h: Optional h parameter for evaluation
 
     Returns:
         Lambda function that extracts k-value from P-object
 
     Examples:
-        >>> k_func = F.k(g=3, h=2)
+        >>> k_func = F.k()
         >>> values = [k_func(p) for p in cycle]
     """
-    return lambda p_obj: p_obj.k(g, h)
+    return lambda p_obj: p_obj.k()
 
 
-def x(
-    g: OptionalNumeric = None, h: OptionalNumeric = None
-) -> Callable[[PValueProtocol], Any]:
+def x() -> Callable[[PValueProtocol], Any]:
     """
     Return curried function for x-value extraction.
-
-    Args:
-        g: Optional g parameter for evaluation
-        h: Optional h parameter for evaluation
 
     Returns:
         Lambda function that extracts x-value from P-object
     """
-    return lambda p_obj: p_obj.x(g, h)
+    return lambda p_obj: p_obj.x()
 
 
 # Boolean filter functions
@@ -238,22 +214,18 @@ def to_object(p: PValueProtocol) -> Dict[str, Any]:
 
 def to_dataframe(
     iterator: Iterator[PValueProtocol],
-    g: OptionalNumeric = None,
-    h: OptionalNumeric = None,
 ) -> pd.DataFrame:
     """
     Convert iterator of P-objects to pandas DataFrame.
 
     Args:
         iterator: Iterator yielding P-objects
-        g: Optional g parameter for polynomial evaluation
-        h: Optional h parameter for polynomial evaluation
 
     Returns:
         Pandas DataFrame with P-object data
 
     Examples:
-        >>> df = F.to_dataframe(P(133).cycle(), g=3, h=2)
+        >>> df = F.to_dataframe(P(133).cycle())
         >>> print(df.head())
     """
     data = []
@@ -265,17 +237,16 @@ def to_dataframe(
             "e": p_obj.e(),
         }
 
-        # Add evaluated polynomials if g, h provided
-        if g is not None and h is not None:
-            try:
-                row["d"] = p_obj.d(g, h)
-                row["k"] = p_obj.k(g, h)
-                row["f"] = p_obj.f(g, h)
-                row["a"] = p_obj.a(g, h)
-                row["x"] = p_obj.x(g, h)
-            except Exception:
-                # Handle cases where evaluation might fail
-                pass
+        # Add evaluated polynomials
+        try:
+            row["d"] = p_obj.d()
+            row["k"] = p_obj.k()
+            row["f"] = p_obj.f()
+            row["a"] = p_obj.a()
+            row["x"] = p_obj.x()
+        except Exception:
+            # Handle cases where evaluation might fail
+            pass
 
         data.append(row)
 
@@ -340,7 +311,7 @@ def map_filter(map_func: Callable = None, filter_func: Callable = None):
         Combined function for use in cycle operations
 
     Examples:
-        >>> mf = F.map_filter(F.k(3,2), F.isodd)
+        >>> mf = F.map_filter(F.k(), F.isodd)
         >>> # Use with P(p).cycle() method
     """
     if map_func is None:

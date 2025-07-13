@@ -5,6 +5,7 @@ This module provides the foundation for encoding mathematical objects within
 specific coordinate systems (bases) defined by (g,h) parameters.
 """
 
+import sympy as sy
 from typing import Dict, Tuple, Union, Any
 from ..utils.symbolic import S
 
@@ -93,6 +94,15 @@ class Basis:
         """
         return self._h
     
+    def is_concrete(self) -> Any:
+        """
+        Return true if the basis has concrete (numeric) axes.
+
+        Returns:
+            True if the axes are both numeric, false otherwise.
+        """
+        return sy.sympify(self._h).is_integer and sy.sympify(self._g).is_integer
+
     def tuple(self) -> Tuple[Any, Any]:
         """
         Return (g, h) tuple for positional unpacking.

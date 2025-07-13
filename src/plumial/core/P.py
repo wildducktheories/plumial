@@ -170,15 +170,9 @@ class _P:
         # Return new P object with same p-value but different basis
         return P(self._p, basis=target_basis)
 
-    def d(
-        self, g: OptionalNumeric = None, h: OptionalNumeric = None
-    ) -> NumericOrSymbolic:
+    def d(self) -> NumericOrSymbolic:
         """
         Return the d-polynomial or its evaluation.
-
-        Args:
-            g: Value to substitute for g parameter (default: use basis or keep symbolic)
-            h: Value to substitute for h parameter (default: use basis or keep symbolic)
 
         Returns:
             Difference polynomial h^e - g^o, either symbolic or evaluated
@@ -187,18 +181,11 @@ class _P:
             >>> p = P(133)
             >>> p.d()  # Symbolic form
             h**5 - g**2
-            >>> p.d(g=3, h=2)  # Numerical evaluation
-            23
             >>> collatz_p = P(133).encode(B.Collatz)
             >>> collatz_p.d()  # Uses basis automatically
             23
         """
-        if g is not None or h is not None:
-            # Legacy path: use provided parameters  
-            return self._d.d(g, h)
-        else:
-            # New path: use basis
-            return self._d.d(**self._basis.dict())
+        return self._d.d()
 
     def D(self):
         """Return the D object."""
@@ -269,19 +256,11 @@ class _P:
 
         return self._expr_uv
 
-    def k(
-        self,
-        g: Optional[Union[int, float]] = None,
-        h: Optional[Union[int, float]] = None,
-    ) -> Union[sy.Expr, int, float]:
+    def k(self) -> Union[sy.Expr, int, float]:
         """
         Calculate the k polynomial.
 
         The k polynomial is derived from the gh transformation of the uv polynomial.
-
-        Args:
-            g: Value to substitute for g (default: use basis or keep symbolic)
-            h: Value to substitute for h (default: use basis or keep symbolic)
 
         Returns:
             k polynomial or its evaluation
@@ -290,8 +269,6 @@ class _P:
             >>> p = P(133)
             >>> p.k()  # Symbolic form
             # Returns symbolic k polynomial
-            >>> p.k(g=3, h=2)  # Legacy numerical evaluation
-            # Returns numerical value
             >>> collatz_p = P(133).encode(B.Collatz)
             >>> collatz_p.k()  # Uses basis automatically
             # Returns numerical value using Collatz basis
@@ -308,20 +285,13 @@ class _P:
 
         result = self._expr_k
 
-        if g is not None or h is not None:
-            # Legacy path: use provided parameters
-            if g is not None:
-                result = result.subs(g_sym, g)
-            if h is not None:
-                result = result.subs(h_sym, h)
-        else:
-            # New path: use basis if it's not symbolic
-            if self._basis != B.Symbolic:
-                basis_dict = self._basis.dict()
-                if basis_dict['g'] is not None:
-                    result = result.subs(g_sym, basis_dict['g'])
-                if basis_dict['h'] is not None:
-                    result = result.subs(h_sym, basis_dict['h'])
+        # Use basis if it's not symbolic
+        if self._basis != B.Symbolic:
+            basis_dict = self._basis.dict()
+            if basis_dict['g'] is not None:
+                result = result.subs(g_sym, basis_dict['g'])
+            if basis_dict['h'] is not None:
+                result = result.subs(h_sym, basis_dict['h'])
 
         return result
 
@@ -361,73 +331,47 @@ class _P:
 
         return (self._expr_a, self._expr_x)
 
-    def a(
-        self,
-        g: Optional[Union[int, float]] = None,
-        h: Optional[Union[int, float]] = None,
-    ) -> Union[sy.Expr, int, float]:
+    def a(self) -> Union[sy.Expr, int, float]:
         """
         Calculate the a coefficient.
-
-        Args:
-            g: Value to substitute for g (default: keep symbolic)
-            h: Value to substitute for h (default: keep symbolic)
 
         Returns:
             a coefficient or its evaluation
         """
-        if g is None or h is None:
-            a, _ = self.ax()
-            result = a
-        else:
-            # For numerical evaluation: a = d/f
-            d_val = self.d(g, h)
-            f_val = self.f(g, h)
-            if f_val == 0:
-                raise ZeroDivisionError("f is 0")
-            result = d_val / f_val
+        a, _ = self.ax()
+        result = a
 
-        if g is not None and result != self._expr_a:
-            result = result.subs(g_sym, g)
-        if h is not None and result != self._expr_a:
-            result = result.subs(h_sym, h)
+        # Use basis if it's not symbolic
+        if self._basis != B.Symbolic:
+            basis_dict = self._basis.dict()
+            if basis_dict['g'] is not None:
+                result = result.subs(g_sym, basis_dict['g'])
+            if basis_dict['h'] is not None:
+                result = result.subs(h_sym, basis_dict['h'])
 
         return result
 
-    def x(
-        self,
-        g: Optional[Union[int, float]] = None,
-        h: Optional[Union[int, float]] = None,
-    ) -> Union[sy.Expr, int, float]:
+    def x(self) -> Union[sy.Expr, int, float]:
         """
         Calculate the x polynomial.
-
-        Args:
-            g: Value to substitute for g (default: keep symbolic)
-            h: Value to substitute for h (default: keep symbolic)
 
         Returns:
             x polynomial or its evaluation
         """
-        if g is None or h is None:
-            _, x = self.ax()
-            result = x
-        else:
-            # For numerical evaluation: x = k/f
-            k_val = self.k(g, h)
-            f_val = self.f(g, h)
-            if f_val == 0:
-                raise ZeroDivisionError("f is 0")
-            result = k_val / f_val
+        _, x = self.ax()
+        result = x
 
-        if g is not None and result != self._expr_x:
-            result = result.subs(g_sym, g)
-        if h is not None and result != self._expr_x:
-            result = result.subs(h_sym, h)
+        # Use basis if it's not symbolic
+        if self._basis != B.Symbolic:
+            basis_dict = self._basis.dict()
+            if basis_dict['g'] is not None:
+                result = result.subs(g_sym, basis_dict['g'])
+            if basis_dict['h'] is not None:
+                result = result.subs(h_sym, basis_dict['h'])
 
         return result
 
-    def f(self, g: OptionalNumeric = None, h: OptionalNumeric = None) -> GCDResult:
+    def f(self) -> GCDResult:
         """
         Calculate the f polynomial (GCD factor).
 
@@ -435,10 +379,6 @@ class _P:
         in the relationship between the d-polynomial d and the k polynomial.
         It is computed as the GCD of d and k, with special handling for even/odd
         values of g.
-
-        Args:
-            g: Value to substitute for g (default: keep symbolic)
-            h: Value to substitute for h (default: keep symbolic)
 
         Returns:
             f polynomial (symbolic) or its numerical evaluation
@@ -451,34 +391,42 @@ class _P:
         Examples:
             >>> p = P(133)
             >>> f_symbolic = p.f()  # Symbolic form
-            >>> f_numeric = p.f(g=3, h=2)  # Numerical evaluation
+            >>> collatz_p = P(133).encode(B.Collatz)
+            >>> f_numeric = collatz_p.f()  # Numerical evaluation
         """
         if self._expr_f is None:
             # Calculate as d/a factored
             a, _ = self.ax()
             self._expr_f = (self.d() / a).factor(g_sym).simplify()
 
-        if g is None or h is None:
-            result = self._expr_f
-            if g is not None:
-                result = result.subs(g_sym, g)
-            if h is not None:
-                result = result.subs(h_sym, h)
-            return result
+        result = self._expr_f
 
-        # For full numerical evaluation, compute GCD directly
-        k_val = self.k(g, h)
-        d_val = self.d(g, h)
+        # Check if we have a concrete basis for numerical evaluation
+        if self._basis != B.Symbolic:
+            basis_dict = self._basis.dict()
+            g_val = basis_dict.get('g')
+            h_val = basis_dict.get('h')
 
-        if g % 2 == 0:
-            # Even g case: compute GCD over cycle
-            cycle_k_values = [p.k(g, h) for p in self.cycle()]
-            f_val = math.gcd(*cycle_k_values, d_val)
-        else:
-            # Odd g case: simple GCD
-            f_val = math.gcd(k_val, d_val)
+            if g_val is not None and h_val is not None:
+                # For full numerical evaluation, compute GCD directly
+                k_val = self.k()
+                d_val = self.d()
 
-        return f_val
+                if g_val % 2 == 0:
+                    # Even g case: compute GCD over cycle
+                    cycle_k_values = [p.k() for p in self.cycle()]
+                    return math.gcd(*cycle_k_values, d_val)
+                else:
+                    # Odd g case: simple GCD
+                    return math.gcd(k_val, d_val)
+            else:
+                # Substitute available parameters
+                if g_val is not None:
+                    result = result.subs(g_sym, g_val)
+                if h_val is not None:
+                    result = result.subs(h_sym, h_val)
+
+        return result
 
     def isforced(self) -> bool:
         """
