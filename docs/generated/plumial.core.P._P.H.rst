@@ -1,6 +1,6 @@
-﻿plumial.core.P.\_P.d
+plumial.core.P.\_P.H
 ====================
 
 .. currentmodule:: plumial.core.P
 
-.. automethod:: _P.d
+.. automethod:: _P.H

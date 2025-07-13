@@ -293,6 +293,47 @@ def test_p_g_method():
     print(f"P(281).G(): {g_matrix_281}")
 
 
+def test_p_h_method():
+    """Test P class H() method for k polynomial coefficient matrix."""
+    # Test with p=133 (7-bit cycle)
+    p_obj = P(133)
+    h_matrix = p_obj.H()
+    
+    assert isinstance(h_matrix, sy.Matrix)
+    print(f"P(133).H() matrix shape: {h_matrix.shape}")
+    print(f"P(133).H(): {h_matrix}")
+    
+    # Verify the matrix has correct structure
+    if h_matrix.shape[0] > 0:  # If there are odd elements
+        assert h_matrix.shape[1] > 0  # Should have at least one coefficient column
+    
+    # Test with p=281 (8-element cycle)
+    p_obj_281 = P(281)
+    h_matrix_281 = p_obj_281.H()
+    
+    assert isinstance(h_matrix_281, sy.Matrix)
+    print(f"P(281).H() matrix shape: {h_matrix_281.shape}")
+    
+    # Count odd elements in cycle to verify matrix rows
+    from plumial.utils.functions import isodd
+    odd_count_133 = sum(1 for p in p_obj.cycle() if isodd(p))
+    odd_count_281 = sum(1 for p in p_obj_281.cycle() if isodd(p))
+    
+    print(f"P(133) cycle odd elements: {odd_count_133}")
+    print(f"P(281) cycle odd elements: {odd_count_281}")
+    
+    # Verify matrix row count matches odd element count
+    if odd_count_133 > 0:
+        assert h_matrix.shape[0] == odd_count_133
+    if odd_count_281 > 0:
+        assert h_matrix_281.shape[0] == odd_count_281
+    
+    # Test edge case: cycle with no odd elements (if any exist)
+    # This is theoretical as most cycles will have odd elements
+    
+    print(f"H() method test completed successfully")
+
+
 def test_p_str_repr():
     """Test string representations."""
     p_obj = P(133)

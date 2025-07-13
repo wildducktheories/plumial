@@ -15,6 +15,7 @@
    
       _P.D
       _P.G
+      _P.H
       _P.__init__
       _P.a
       _P.ax

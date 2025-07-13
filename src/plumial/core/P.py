@@ -558,6 +558,82 @@ class _P:
         """
         return self._d.G()
 
+    def H(self) -> sy.Matrix:
+        """
+        Create matrix of k polynomial coefficients for odd cycle elements.
+        
+        This method generates a matrix where each row contains the coefficients
+        of the k polynomial (with respect to g) for each odd p-value in the cycle.
+        This is used for matrix operations analyzing the polynomial structure
+        of Collatz cycles.
+        
+        Returns:
+            SymPy Matrix with each row containing k polynomial coefficients for odd cycle elements
+            
+        Mathematical Structure:
+            For each odd p in cycle, extract coefficients of p.k() polynomial w.r.t. g
+            Matrix shape: (number_of_odd_elements, max_polynomial_degree + 1)
+            
+        Examples:
+            >>> p = P(133)  # Cycle with odd elements
+            >>> h_matrix = p.H()
+            >>> # Returns matrix with k polynomial coefficients for each odd cycle element
+            
+        Matrix Operations:
+            >>> p = P(281)  # 8-element cycle
+            >>> H_mat = p.H()
+            >>> # Matrix with rows for each odd element's k polynomial coefficients
+            
+        Note:
+            Only processes odd cycle elements as these are most relevant for analysis
+        """
+        # Import here to avoid circular imports
+        from ..utils.functions import isodd
+        
+        # Get all odd elements from the cycle
+        odd_elements = [p for p in self.cycle() if isodd(p)]
+        
+        if not odd_elements:
+            # No odd elements in cycle - return empty matrix
+            return sy.Matrix([])
+        
+        # Extract k polynomial coefficients for each odd element
+        coefficient_rows = []
+        max_degree = 0
+        
+        # First pass: determine maximum polynomial degree
+        for p in odd_elements:
+            k_poly = p.k()
+            if isinstance(k_poly, (sy.Add, sy.Mul, sy.Pow, sy.Symbol)):
+                # Convert to polynomial to get coefficients
+                poly = sy.Poly(k_poly, g_sym)
+                degree = poly.degree()
+                max_degree = max(max_degree, degree)
+        
+        # Second pass: extract coefficients padded to max_degree
+        for p in odd_elements:
+            k_poly = p.k()
+            if isinstance(k_poly, (sy.Add, sy.Mul, sy.Pow, sy.Symbol)):
+                # Convert to polynomial and get all coefficients
+                poly = sy.Poly(k_poly, g_sym)
+                coeffs = poly.all_coeffs()
+                
+                # Pad with zeros if polynomial degree is less than max_degree
+                while len(coeffs) < max_degree + 1:
+                    coeffs = [0] + coeffs  # Pad with leading zeros
+                    
+                coefficient_rows.append(coeffs)
+            else:
+                # Handle constant case
+                coeffs = [0] * max_degree + [k_poly]
+                coefficient_rows.append(coeffs)
+        
+        # Create and return matrix
+        if coefficient_rows:
+            return sy.Matrix(coefficient_rows)
+        else:
+            return sy.Matrix([])
+
     def __str__(self) -> str:
         return str(self._p)
 
