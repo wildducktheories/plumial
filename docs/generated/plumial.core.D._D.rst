@@ -13,6 +13,7 @@
    .. autosummary::
       :toctree: .
    
+      _D.G
       _D.__init__
       _D.as_expr
       _D.basis

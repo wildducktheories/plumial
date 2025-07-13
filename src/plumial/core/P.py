@@ -529,6 +529,35 @@ class _P:
 
         return binary_string(self._p, width)
 
+    def G(self) -> sy.Matrix:
+        """
+        Create column vector of g powers from g^(o-1) down to g^0.
+        
+        This method delegates to the D object's G() method to generate a column vector
+        containing powers of g in descending order, used for matrix operations with 
+        polynomial coefficients.
+        
+        Returns:
+            SymPy Matrix column vector with g powers [g^(o-1), g^(o-2), ..., g^1, g^0]
+            
+        Mathematical Structure:
+            For o odd bits, creates: [g^(o-1), g^(o-2), ..., g^1, g^0]^T
+            
+        Examples:
+            >>> p = P(133)  # o=2, e=5
+            >>> g_vector = p.G()
+            >>> # Returns Matrix([[g], [1]]) for powers g^1, g^0
+            
+        Matrix Operations:
+            >>> p = P(281)  # o=3, e=5
+            >>> G_vec = p.G()
+            >>> # Returns Matrix([[g**2], [g], [1]]) for use in polynomial operations
+            
+        Note:
+            This method delegates to the associated D object: self._d.G()
+        """
+        return self._d.G()
+
     def __str__(self) -> str:
         return str(self._p)
 

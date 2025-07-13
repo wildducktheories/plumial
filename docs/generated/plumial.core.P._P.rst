@@ -14,6 +14,7 @@
       :toctree: .
    
       _P.D
+      _P.G
       _P.__init__
       _P.a
       _P.ax

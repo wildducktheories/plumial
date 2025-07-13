@@ -267,6 +267,38 @@ class _D:
 
 
 
+    def G(self) -> sy.Matrix:
+        """
+        Create column vector of g powers from g^(o-1) down to g^0.
+        
+        This method generates a column vector containing powers of g in descending order,
+        used for matrix operations with polynomial coefficients. The vector has o elements
+        corresponding to the number of odd bits.
+        
+        Returns:
+            SymPy Matrix column vector with g powers [g^(o-1), g^(o-2), ..., g^1, g^0]
+            
+        Mathematical Structure:
+            For o odd bits, creates: [g^(o-1), g^(o-2), ..., g^1, g^0]^T
+            
+        Examples:
+            >>> d = D(2, 5)  # o=2, e=5
+            >>> g_vector = d.G()
+            >>> # Returns Matrix([[g], [1]]) for powers g^1, g^0
+            
+        Matrix Operations:
+            >>> d = D(3, 4)  # o=3, e=4  
+            >>> G_vec = d.G()
+            >>> # Returns Matrix([[g**2], [g], [1]]) for use in polynomial operations
+        """
+        if self._o == 0:
+            # Special case: no odd bits means empty matrix
+            return sy.Matrix([])
+        
+        # Create column vector with g powers from g^(o-1) down to g^0
+        powers = [g_sym**i for i in range(self._o - 1, -1, -1)]
+        return sy.Matrix(powers)
+
     def __str__(self) -> str:
         """String representation showing the polynomial."""
         return str(self.as_expr())

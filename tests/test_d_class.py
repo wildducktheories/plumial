@@ -162,6 +162,30 @@ def test_d_mathematical_operations():
     assert isinstance(r_numeric, (int, float))
     print(f"D(2, 5) Collatz r(): {r_numeric}")
 
+    # Test new G() method
+    g_matrix = d_obj.G()
+    assert isinstance(g_matrix, sy.Matrix)
+    print(f"D(2, 5).G(): {g_matrix}")
+    
+    # Verify G() matrix structure for o=2
+    assert g_matrix.shape == (2, 1)  # Column vector with 2 elements
+    assert g_matrix[0, 0] == sy.Symbol('g')  # g^1
+    assert g_matrix[1, 0] == 1  # g^0 = 1
+    
+    # Test G() with different o values
+    d_obj_3 = D(3, 4)  # o=3
+    g_matrix_3 = d_obj_3.G()
+    assert g_matrix_3.shape == (3, 1)
+    assert g_matrix_3[0, 0] == sy.Symbol('g')**2  # g^2
+    assert g_matrix_3[1, 0] == sy.Symbol('g')     # g^1
+    assert g_matrix_3[2, 0] == 1                  # g^0
+    
+    # Test G() with o=0 (edge case)
+    d_obj_0 = D(0, 3)  # o=0
+    g_matrix_0 = d_obj_0.G()
+    assert g_matrix_0.shape == (0, 0)  # Empty matrix
+    assert len(g_matrix_0) == 0
+
 
 def test_d_edge_cases():
     """Test edge cases for D class."""

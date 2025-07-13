@@ -264,6 +264,35 @@ def test_p_mathematical_relationships():
         print("Some relationships involve division by zero")
 
 
+def test_p_g_method():
+    """Test P class G() method delegation to D object."""
+    # Test with p=133 (o=2, e=5)
+    p_obj = P(133)
+    g_matrix = p_obj.G()
+    
+    assert isinstance(g_matrix, sy.Matrix)
+    assert g_matrix.shape == (2, 1)  # Column vector with 2 elements
+    assert g_matrix[0, 0] == sy.Symbol('g')  # g^1
+    assert g_matrix[1, 0] == 1  # g^0 = 1
+    
+    # Test with p=281 (o=3, e=5)
+    p_obj_281 = P(281)
+    g_matrix_281 = p_obj_281.G()
+    
+    assert g_matrix_281.shape == (3, 1)  # Column vector with 3 elements
+    assert g_matrix_281[0, 0] == sy.Symbol('g')**2  # g^2
+    assert g_matrix_281[1, 0] == sy.Symbol('g')     # g^1
+    assert g_matrix_281[2, 0] == 1                  # g^0
+    
+    # Verify delegation: P.G() should match D.G()
+    d_obj = p_obj.D()
+    d_matrix = d_obj.G()
+    assert g_matrix.equals(d_matrix)
+    
+    print(f"P(133).G(): {g_matrix}")
+    print(f"P(281).G(): {g_matrix_281}")
+
+
 def test_p_str_repr():
     """Test string representations."""
     p_obj = P(133)
