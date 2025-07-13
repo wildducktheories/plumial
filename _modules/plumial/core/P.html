@@ -1,0 +1,967 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plumial.core.P &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plumial.core.P</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plumial.core.P</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Path object representations for Collatz conjecture analysis.</span>
+
+<span class="sd">This module provides the core P class for working with path objects in</span>
+<span class="sd">Collatz sequence analysis. Path objects are hydrated path identifiers (p-values)</span>
+<span class="sd">that encode the binary path information of Collatz sequences, with support</span>
+<span class="sd">for k polynomials, uv polynomials, d polynomials, and various</span>
+<span class="sd">mathematical operations.</span>
+
+<span class="sd">The module uses LRU caching for performance optimization and provides</span>
+<span class="sd">comprehensive support for symbolic mathematics through SymPy integration.</span>
+
+<span class="sd">Key Components:</span>
+<span class="sd">    - _P: Internal polynomial class with mathematical operations</span>
+<span class="sd">    - P(): Factory function with caching support</span>
+<span class="sd">    - Cycle navigation methods (next, pred, cycle)</span>
+<span class="sd">    - UV polynomial generation and transformations</span>
+<span class="sd">    - Mathematical relationships: x*d = a*k, a = d/f, x = k/f</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">    &gt;&gt;&gt; from plumial import P</span>
+<span class="sd">    &gt;&gt;&gt; p = P(133)  # Create polynomial for p-value 133</span>
+<span class="sd">    &gt;&gt;&gt; print(p.n(), p.o(), p.e())  # Bit counts: n=7, o=2, e=5</span>
+<span class="sd">    &gt;&gt;&gt; uv_poly = p.uv()  # Get UV polynomial representation</span>
+<span class="sd">    &gt;&gt;&gt; collatz_p = p.encode(g=3, h=2)  # Encode for Collatz evaluation</span>
+<span class="sd">    &gt;&gt;&gt; k_val = collatz_p.k()  # Evaluate k polynomial</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sympy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sy</span>
+
+<span class="c1"># Import type aliases for better type safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CacheInfo</span><span class="p">,</span>
+    <span class="n">GCDResult</span><span class="p">,</span>
+    <span class="n">NumericOrSymbolic</span><span class="p">,</span>
+    <span class="n">NumericType</span><span class="p">,</span>
+    <span class="n">OptionalNumeric</span><span class="p">,</span>
+    <span class="n">PolynomialTuple</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.matrix_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">eat_minus_1</span><span class="p">,</span> <span class="n">expr_as_vector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.symbolic</span><span class="w"> </span><span class="kn">import</span> <span class="n">g</span> <span class="k">as</span> <span class="n">g_sym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.symbolic</span><span class="w"> </span><span class="kn">import</span> <span class="n">h</span> <span class="k">as</span> <span class="n">h_sym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.symbolic</span><span class="w"> </span><span class="kn">import</span> <span class="n">u</span> <span class="k">as</span> <span class="n">u_sym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.symbolic</span><span class="w"> </span><span class="kn">import</span> <span class="n">v</span> <span class="k">as</span> <span class="n">v_sym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.D</span><span class="w"> </span><span class="kn">import</span> <span class="n">D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.basis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">resolve_basis</span>
+
+
+<div class="viewcode-block" id="_P">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.html#plumial.core._P">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_P</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Internal class representing a path polynomial in Collatz analysis.</span>
+
+<span class="sd">    This class encapsulates the mathematical structure of a Collatz path polynomial,</span>
+<span class="sd">    providing methods for polynomial evaluation, cycle navigation, and various</span>
+<span class="sd">    mathematical transformations. It maintains cached expressions for performance</span>
+<span class="sd">    and supports both symbolic and numerical operations.</span>
+
+<span class="sd">    The class implements the mathematical relationships between different polynomial</span>
+<span class="sd">    representations used in Collatz analysis, including UV polynomials, difference</span>
+<span class="sd">    polynomials, and the fundamental relationship x*d = a*k.</span>
+
+<span class="sd">    This class should not be instantiated directly. Use the P() factory function instead.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _p: The integer p-value this polynomial represents</span>
+<span class="sd">        _d: Cached D object D(p)</span>
+<span class="sd">        _next: Cached next element in the cycle</span>
+<span class="sd">        _pred: Cached predecessor element in the cycle</span>
+<span class="sd">        _expr_*: Cached symbolic expressions for various polynomial forms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="_P.__init__">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.__init__.html#plumial.core._P.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+        <span class="n">basis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Basis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pred</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;_P&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="nb">next</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;_P&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a path polynomial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p: The p-value (must be a positive integer)</span>
+<span class="sd">            basis: The mathematical basis for this encoding (default: symbolic basis)</span>
+<span class="sd">            pred: Optional predecessor P instance for cycle linking</span>
+<span class="sd">            next: Optional next P instance for cycle linking</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This constructor is internal. Use P() factory function instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">=</span> <span class="n">basis</span> <span class="k">if</span> <span class="n">basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;_P&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pred</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;_P&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Cached symbolic expressions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_p</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_a</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_f</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_k</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_uv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr_gh</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Initialize D object with same basis</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_d</span> <span class="o">=</span> <span class="n">D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">(),</span> <span class="n">basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_P.p">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.p.html#plumial.core._P.p">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the p-value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span></div>
+
+
+<div class="viewcode-block" id="_P.n">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.n.html#plumial.core._P.n">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of path bits.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="_P.o">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.o.html#plumial.core._P.o">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">o</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of odd bits.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="_P.e">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.e.html#plumial.core._P.e">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of even bits.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_P.c">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.c.html#plumial.core._P.c">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the ceiling of log_h(g).</span>
+<span class="sd">        </span>
+<span class="sd">        Delegates to the D object&#39;s c() method.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Ceiling value, either symbolic or evaluated based on the basis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="o">.</span><span class="n">c</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_P.r">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.r.html#plumial.core._P.r">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">r</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the remainder: c() * o() - e().</span>
+<span class="sd">        </span>
+<span class="sd">        Delegates to the D object&#39;s r() method.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Remainder value, either symbolic or evaluated based on the basis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="o">.</span><span class="n">r</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_P.basis">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.basis.html#plumial.core._P.basis">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Basis</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the basis of this encoding.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span></div>
+
+
+<div class="viewcode-block" id="_P.encode">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.encode.html#plumial.core._P.encode">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">basis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Basis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">g</span><span class="p">:</span> <span class="n">OptionalNumeric</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">h</span><span class="p">:</span> <span class="n">OptionalNumeric</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_P&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new P object encoded in a different basis.</span>
+<span class="sd">        </span>
+<span class="sd">        This method enables the transitive encoding property where P objects</span>
+<span class="sd">        can be transformed between different coordinate systems while preserving</span>
+<span class="sd">        the underlying p-value identity.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            basis: Target basis for encoding</span>
+<span class="sd">            g: g parameter for custom basis (alternative to basis parameter)</span>
+<span class="sd">            h: h parameter for custom basis (alternative to basis parameter)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            New P object with same p-value but different basis</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(281)                    # Symbolic basis</span>
+<span class="sd">            &gt;&gt;&gt; collatz_p = p.encode(B.Collatz)  # Collatz basis</span>
+<span class="sd">            &gt;&gt;&gt; custom_p = p.encode(g=5, h=2)    # Custom basis</span>
+<span class="sd">            &gt;&gt;&gt; back_p = collatz_p.encode()      # Back to symbolic basis</span>
+<span class="sd">            &gt;&gt;&gt; assert back_p == p              # Round-trip equality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle empty encode() - return to symbolic basis</span>
+        <span class="k">if</span> <span class="n">basis</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">g</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">P</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span><span class="p">)</span>
+        
+        <span class="c1"># Resolve target basis</span>
+        <span class="n">target_basis</span> <span class="o">=</span> <span class="n">resolve_basis</span><span class="p">(</span><span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+        
+        <span class="c1"># Return new P object with same p-value but different basis</span>
+        <span class="k">return</span> <span class="n">P</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">target_basis</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_P.d">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.D.html#plumial.core._P.d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NumericOrSymbolic</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the d-polynomial or its evaluation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Difference polynomial h^e - g^o, either symbolic or evaluated</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)</span>
+<span class="sd">            &gt;&gt;&gt; p.d()  # Symbolic form</span>
+<span class="sd">            h**5 - g**2</span>
+<span class="sd">            &gt;&gt;&gt; collatz_p = P(133).encode(B.Collatz)</span>
+<span class="sd">            &gt;&gt;&gt; collatz_p.d()  # Uses basis automatically</span>
+<span class="sd">            23</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="o">.</span><span class="n">d</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_P.D">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.html#plumial.core._P.D">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">D</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the D object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span></div>
+
+
+<div class="viewcode-block" id="_P.next">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.next.html#plumial.core._P.next">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_P&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the next element in the cycle.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Implement bit rotation for next p-value</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">()</span>
+            <span class="n">next_p</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">n</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span> <span class="o">|</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">n</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">next_p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span></div>
+
+
+<div class="viewcode-block" id="_P.pred">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.pred.html#plumial.core._P.pred">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pred</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_P&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the predecessor element in the cycle.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pred</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Implement bit rotation for predecessor p-value</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">()</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">n</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">pred_p</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">mask</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">stop</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pred</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">pred_p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pred</span></div>
+
+
+<div class="viewcode-block" id="_P.cycle">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.cycle.html#plumial.core._P.cycle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cycle</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">map</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;_P&quot;</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;_P&quot;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="s2">&quot;_P&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate through the cycle.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">map</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="nb">filter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">filter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span>
+
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">filter</span><span class="p">(</span><span class="n">current</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="nb">map</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">next</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_P.uv">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.uv.html#plumial.core._P.uv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">uv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate UV polynomial representation.</span>
+
+<span class="sd">        This creates a polynomial in u and v variables that encodes the</span>
+<span class="sd">        binary path structure of the p-value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SymPy expression in u and v variables</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_uv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">u_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">v_</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">()</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">while</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">+</span> <span class="p">(</span><span class="n">u_sym</span><span class="o">**</span><span class="n">u_</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_sym</span><span class="o">**</span><span class="n">v_</span><span class="p">)</span>
+                    <span class="n">u_</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">v_</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">t</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">sympify</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expr_uv</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_uv</span></div>
+
+
+<div class="viewcode-block" id="_P.k">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.k.html#plumial.core._P.k">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the k polynomial.</span>
+
+<span class="sd">        The k polynomial is derived from the gh transformation of the uv polynomial.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            k polynomial or its evaluation</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)</span>
+<span class="sd">            &gt;&gt;&gt; p.k()  # Symbolic form</span>
+<span class="sd">            # Returns symbolic k polynomial</span>
+<span class="sd">            &gt;&gt;&gt; collatz_p = P(133).encode(B.Collatz)</span>
+<span class="sd">            &gt;&gt;&gt; collatz_p.k()  # Uses basis automatically</span>
+<span class="sd">            # Returns numerical value using Collatz basis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Calculate k from gh transformation of uv</span>
+            <span class="n">uv_expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uv</span><span class="p">()</span>
+            <span class="c1"># Transform u -&gt; g*h, v -&gt; h, then factor out h^(o-1)</span>
+            <span class="n">gh_expr</span> <span class="o">=</span> <span class="n">uv_expr</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">u_sym</span><span class="p">,</span> <span class="n">g_sym</span> <span class="o">*</span> <span class="n">h_sym</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">v_sym</span><span class="p">,</span> <span class="n">h_sym</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_expr_k</span> <span class="o">=</span> <span class="p">(</span><span class="n">gh_expr</span> <span class="o">/</span> <span class="n">h_sym</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">factor</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_expr_k</span> <span class="o">=</span> <span class="n">gh_expr</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_k</span>
+
+        <span class="c1"># Use basis if it&#39;s not symbolic</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">!=</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span><span class="p">:</span>
+            <span class="n">basis_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">g_sym</span><span class="p">,</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">h_sym</span><span class="p">,</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="_P.ax">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.ax.html#plumial.core._P.ax">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ax</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate a pair of polynomials a,x such that x*d = a*k.</span>
+
+<span class="sd">        This method computes the polynomial factorization that satisfies the</span>
+<span class="sd">        fundamental relationship x*d = a*k, where d is the d-polynomial</span>
+<span class="sd">        and k is the k polynomial. The factorization separates the d-polynomial</span>
+<span class="sd">        ratio d/k into numerator (a) and denominator (x) components.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (a_polynomial, x_polynomial) where both are SymPy expressions</span>
+
+<span class="sd">        Mathematical Relationship:</span>
+<span class="sd">            x * d = a * k</span>
+<span class="sd">            a = d / f (where f is the GCD factor)</span>
+<span class="sd">            x = k / f</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)</span>
+<span class="sd">            &gt;&gt;&gt; a, x = p.ax()</span>
+<span class="sd">            &gt;&gt;&gt; # Verify the relationship symbolically</span>
+<span class="sd">            &gt;&gt;&gt; d_poly = p.d()</span>
+<span class="sd">            &gt;&gt;&gt; k_poly = p.k()</span>
+<span class="sd">            &gt;&gt;&gt; assert sy.expand(x * d_poly) == sy.expand(a * k_poly)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Calculate as d/k, then separate into a,x using fraction</span>
+            <span class="n">fraction_expr</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">())</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">g_sym</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">fraction</span><span class="p">(</span><span class="n">fraction_expr</span><span class="p">)</span>
+
+            <span class="c1"># Move any leading negative coefficient into a term</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expr_a</span> <span class="o">=</span> <span class="n">eat_minus_1</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expr_x</span> <span class="o">=</span> <span class="n">x</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_expr_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_P.a">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.a.html#plumial.core._P.a">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the a coefficient.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a coefficient or its evaluation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span>
+
+        <span class="c1"># Use basis if it&#39;s not symbolic</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">!=</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span><span class="p">:</span>
+            <span class="n">basis_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">g_sym</span><span class="p">,</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">h_sym</span><span class="p">,</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="_P.x">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.x.html#plumial.core._P.x">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the x polynomial.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            x polynomial or its evaluation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">x</span>
+
+        <span class="c1"># Use basis if it&#39;s not symbolic</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">!=</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span><span class="p">:</span>
+            <span class="n">basis_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">g_sym</span><span class="p">,</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">h_sym</span><span class="p">,</span> <span class="n">basis_dict</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="_P.f">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.f.html#plumial.core._P.f">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GCDResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the f polynomial (GCD factor).</span>
+
+<span class="sd">        The f polynomial represents the greatest common divisor factor that appears</span>
+<span class="sd">        in the relationship between the d-polynomial d and the k polynomial.</span>
+<span class="sd">        It is computed as the GCD of d and k, with special handling for even/odd</span>
+<span class="sd">        values of g.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            f polynomial (symbolic) or its numerical evaluation</span>
+
+<span class="sd">        Mathematical Background:</span>
+<span class="sd">            f = gcd(d, k) where d is the d-polynomial and k is the k polynomial</span>
+<span class="sd">            For even g: f is computed over the entire cycle</span>
+<span class="sd">            For odd g: f is the simple GCD of d and k</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)</span>
+<span class="sd">            &gt;&gt;&gt; f_symbolic = p.f()  # Symbolic form</span>
+<span class="sd">            &gt;&gt;&gt; collatz_p = P(133).encode(B.Collatz)</span>
+<span class="sd">            &gt;&gt;&gt; f_numeric = collatz_p.f()  # Numerical evaluation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Calculate as d/a factored</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expr_f</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">()</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">g_sym</span><span class="p">)</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr_f</span>
+
+        <span class="c1"># Check if we have a concrete basis for numerical evaluation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">!=</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span><span class="p">:</span>
+            <span class="n">basis_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+            <span class="n">g_val</span> <span class="o">=</span> <span class="n">basis_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">h_val</span> <span class="o">=</span> <span class="n">basis_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">g_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">h_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># For full numerical evaluation, compute GCD directly</span>
+                <span class="n">k_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+                <span class="n">d_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">g_val</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Even g case: compute GCD over cycle</span>
+                    <span class="n">cycle_k_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle</span><span class="p">()]</span>
+                    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="o">*</span><span class="n">cycle_k_values</span><span class="p">,</span> <span class="n">d_val</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Odd g case: simple GCD</span>
+                    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="n">d_val</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Substitute available parameters</span>
+                <span class="k">if</span> <span class="n">g_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">g_sym</span><span class="p">,</span> <span class="n">g_val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">h_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">h_sym</span><span class="p">,</span> <span class="n">h_val</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="_P.isforced">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.isforced.html#plumial.core._P.isforced">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">isforced</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if the cycle is forced by the p-value bit pattern.</span>
+
+<span class="sd">        A cycle is considered &quot;forced&quot; if the next operation cannot be determined</span>
+<span class="sd">        by inspecting the LSB bit of the x-value alone, but instead is determined</span>
+<span class="sd">        by the LSB bit of the p-value. This occurs when:</span>
+
+<span class="sd">        1. The p-value contains any adjacent 1 bits in its binary representation, OR</span>
+<span class="sd">        2. The top and bottom path bits are both 1</span>
+
+<span class="sd">        This is a critical property for Collatz analysis: any counterexample to the</span>
+<span class="sd">        Collatz conjecture would have isforced() == False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the cycle is forced by the p-value bit pattern, False otherwise</span>
+
+<span class="sd">        Mathematical Background:</span>
+<span class="sd">            For unforced cycles: all(p.x(3,2) % 2 == p.p() % 2 for p in cycle)</span>
+<span class="sd">            For forced cycles: the above condition is False for at least one element</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; P(9).isforced()   # Unforced cycle</span>
+<span class="sd">            False</span>
+<span class="sd">            &gt;&gt;&gt; P(291).isforced() # Forced cycle</span>
+<span class="sd">            True</span>
+<span class="sd">            &gt;&gt;&gt; # Verify unforced property for P(9)</span>
+<span class="sd">            &gt;&gt;&gt; all(p.x(3,2) % 2 == p.p() % 2 for p in P(9).cycle())</span>
+<span class="sd">            True</span>
+<span class="sd">            &gt;&gt;&gt; # Verify forced property for P(291)</span>
+<span class="sd">            &gt;&gt;&gt; all(p.x(3,2) % 2 == p.p() % 2 for p in P(291).cycle())</span>
+<span class="sd">            False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">()</span>
+
+        <span class="c1"># Check for adjacent 1 bits in the path portion (excluding leading bit)</span>
+        <span class="c1"># The path bits are bits 0 to n-1 (bit n is always 1)</span>
+        <span class="n">path_bits</span> <span class="o">=</span> <span class="n">p_binary</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Check for adjacent 1s by shifting and ANDing</span>
+        <span class="c1"># If any adjacent bits are both 1, this will be non-zero</span>
+        <span class="n">adjacent_ones</span> <span class="o">=</span> <span class="n">path_bits</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">path_bits</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adjacent_ones</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Check if top and bottom path bits are both 1</span>
+        <span class="c1"># Bottom bit: bit 0</span>
+        <span class="c1"># Top path bit: bit n-1 (the bit just below the leading 1)</span>
+        <span class="n">bottom_bit</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_binary</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">top_path_bit</span> <span class="o">=</span> <span class="p">((</span><span class="n">p_binary</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">bottom_bit</span> <span class="ow">and</span> <span class="n">top_path_bit</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="_P.b">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.b.html#plumial.core._P.b">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return binary string representation of the p-value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            width: Minimum width (right-justified with zeros, default: 0)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Binary string representation</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)</span>
+<span class="sd">            &gt;&gt;&gt; p.b()</span>
+<span class="sd">            &#39;10000101&#39;</span>
+<span class="sd">            &gt;&gt;&gt; p.b(10)</span>
+<span class="sd">            &#39;0010000101&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.binary</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_string</span>
+
+        <span class="k">return</span> <span class="n">binary_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_P.G">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.G.html#plumial.core._P.G">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">G</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create column vector of g powers from g^(o-1) down to g^0.</span>
+<span class="sd">        </span>
+<span class="sd">        This method delegates to the D object&#39;s G() method to generate a column vector</span>
+<span class="sd">        containing powers of g in descending order, used for matrix operations with </span>
+<span class="sd">        polynomial coefficients.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            SymPy Matrix column vector with g powers [g^(o-1), g^(o-2), ..., g^1, g^0]</span>
+<span class="sd">            </span>
+<span class="sd">        Mathematical Structure:</span>
+<span class="sd">            For o odd bits, creates: [g^(o-1), g^(o-2), ..., g^1, g^0]^T</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)  # o=2, e=5</span>
+<span class="sd">            &gt;&gt;&gt; g_vector = p.G()</span>
+<span class="sd">            &gt;&gt;&gt; # Returns Matrix([[g], [1]]) for powers g^1, g^0</span>
+<span class="sd">            </span>
+<span class="sd">        Matrix Operations:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(281)  # o=3, e=5</span>
+<span class="sd">            &gt;&gt;&gt; G_vec = p.G()</span>
+<span class="sd">            &gt;&gt;&gt; # Returns Matrix([[g**2], [g], [1]]) for use in polynomial operations</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            This method delegates to the associated D object: self._d.G()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="o">.</span><span class="n">G</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_P.H">
+<a class="viewcode-back" href="../../../generated/plumial.core.P._P.H.html#plumial.core._P.H">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">H</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create matrix of k polynomial coefficients for odd cycle elements.</span>
+<span class="sd">        </span>
+<span class="sd">        This method generates a matrix where each row contains the coefficients</span>
+<span class="sd">        of the k polynomial (with respect to g) for each odd p-value in the cycle.</span>
+<span class="sd">        This is used for matrix operations analyzing the polynomial structure</span>
+<span class="sd">        of Collatz cycles.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            SymPy Matrix with each row containing k polynomial coefficients for odd cycle elements</span>
+<span class="sd">            </span>
+<span class="sd">        Mathematical Structure:</span>
+<span class="sd">            For each odd p in cycle, extract coefficients of p.k() polynomial w.r.t. g</span>
+<span class="sd">            Matrix shape: (number_of_odd_elements, max_polynomial_degree + 1)</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(133)  # Cycle with odd elements</span>
+<span class="sd">            &gt;&gt;&gt; h_matrix = p.H()</span>
+<span class="sd">            &gt;&gt;&gt; # Returns matrix with k polynomial coefficients for each odd cycle element</span>
+<span class="sd">            </span>
+<span class="sd">        Matrix Operations:</span>
+<span class="sd">            &gt;&gt;&gt; p = P(281)  # 8-element cycle</span>
+<span class="sd">            &gt;&gt;&gt; H_mat = p.H()</span>
+<span class="sd">            &gt;&gt;&gt; # Matrix with rows for each odd element&#39;s k polynomial coefficients</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            Only processes odd cycle elements as these are most relevant for analysis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Import here to avoid circular imports</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">isodd</span>
+        
+        <span class="c1"># Get all odd elements from the cycle</span>
+        <span class="n">odd_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle</span><span class="p">()</span> <span class="k">if</span> <span class="n">isodd</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">odd_elements</span><span class="p">:</span>
+            <span class="c1"># No odd elements in cycle - return empty matrix</span>
+            <span class="k">return</span> <span class="n">sy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([])</span>
+        
+        <span class="c1"># Extract k polynomial coefficients for each odd element</span>
+        <span class="n">coefficient_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">max_degree</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># First pass: determine maximum polynomial degree</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">odd_elements</span><span class="p">:</span>
+            <span class="n">k_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k_poly</span><span class="p">,</span> <span class="p">(</span><span class="n">sy</span><span class="o">.</span><span class="n">Add</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Mul</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Pow</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">)):</span>
+                <span class="c1"># Convert to polynomial to get coefficients</span>
+                <span class="n">poly</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Poly</span><span class="p">(</span><span class="n">k_poly</span><span class="p">,</span> <span class="n">g_sym</span><span class="p">)</span>
+                <span class="n">degree</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
+                <span class="n">max_degree</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_degree</span><span class="p">,</span> <span class="n">degree</span><span class="p">)</span>
+        
+        <span class="c1"># Second pass: extract coefficients padded to max_degree</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">odd_elements</span><span class="p">:</span>
+            <span class="n">k_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k_poly</span><span class="p">,</span> <span class="p">(</span><span class="n">sy</span><span class="o">.</span><span class="n">Add</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Mul</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Pow</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">)):</span>
+                <span class="c1"># Convert to polynomial and get all coefficients</span>
+                <span class="n">poly</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Poly</span><span class="p">(</span><span class="n">k_poly</span><span class="p">,</span> <span class="n">g_sym</span><span class="p">)</span>
+                <span class="n">coeffs</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">all_coeffs</span><span class="p">()</span>
+                
+                <span class="c1"># Pad with zeros if polynomial degree is less than max_degree</span>
+                <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">coeffs</span>  <span class="c1"># Pad with leading zeros</span>
+                    
+                <span class="n">coefficient_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Handle constant case</span>
+                <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">max_degree</span> <span class="o">+</span> <span class="p">[</span><span class="n">k_poly</span><span class="p">]</span>
+                <span class="n">coefficient_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+        
+        <span class="c1"># Create and return matrix</span>
+        <span class="k">if</span> <span class="n">coefficient_rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="n">coefficient_rows</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([])</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">_P</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_p</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_basis</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis</span><span class="p">))</span></div>
+
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_p_cached</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">basis_hash</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_P</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create _P instance with LRU caching based on (p-value, basis) combination.</span>
+
+<span class="sd">    This internal function provides caching for P instances to improve performance</span>
+<span class="sd">    when the same (p-value, basis) combinations are accessed repeatedly. The cache</span>
+<span class="sd">    uses LRU eviction and has a maximum size of 1000 entries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value (positive integer)</span>
+<span class="sd">        basis_hash: Hash of the basis for cache key</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Cached or newly created _P instance</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This function is internal and should not be called directly.</span>
+<span class="sd">        Use the P() factory function instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Reconstruct basis from hash - this is a workaround since we can&#39;t cache</span>
+    <span class="c1"># Basis objects directly. In practice, most usage will be with common bases.</span>
+    <span class="k">if</span> <span class="n">basis_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span><span class="p">):</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span>
+    <span class="k">elif</span> <span class="n">basis_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz</span><span class="p">):</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Collatz</span>
+    <span class="k">elif</span> <span class="n">basis_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz_5_2</span><span class="p">):</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Collatz_5_2</span>
+    <span class="k">elif</span> <span class="n">basis_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz_7_2</span><span class="p">):</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Collatz_7_2</span>
+    <span class="k">elif</span> <span class="n">basis_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz_5_4</span><span class="p">):</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Collatz_5_4</span>
+    <span class="k">elif</span> <span class="n">basis_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz_7_4</span><span class="p">):</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Collatz_7_4</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># For custom bases, we skip caching to avoid hash collisions</span>
+        <span class="c1"># This is a safety measure - custom bases won&#39;t be cached</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot reconstruct basis from hash </span><span class="si">{</span><span class="n">basis_hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">_P</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="P">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.P">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">P</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">basis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Basis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_P</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">next</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_P</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_P</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory function for creating P instances with improved caching.</span>
+
+<span class="sd">    This is the main entry point for creating path objects in the plumial</span>
+<span class="sd">    library. It provides intelligent caching for performance while supporting</span>
+<span class="sd">    basis-aware encoding and cycle linking for predecessor/successor relationships.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value (positive integer or binary string representing the path)</span>
+<span class="sd">        basis: The mathematical basis for this encoding (default: symbolic basis)</span>
+<span class="sd">        pred: Optional predecessor P instance for cycle linking</span>
+<span class="sd">        next: Optional next P instance for cycle linking</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        _P instance, either from cache or newly created</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If p &lt;= 0 (p-values must be positive) or invalid binary string</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; p1 = P(133)  # Uses symbolic basis and cache</span>
+<span class="sd">        &gt;&gt;&gt; p2 = P(133)  # Returns same instance from cache</span>
+<span class="sd">        &gt;&gt;&gt; assert p1 is p2</span>
+<span class="sd">        &gt;&gt;&gt; p3 = P(&#39;10000101&#39;)  # Binary string for 133</span>
+<span class="sd">        &gt;&gt;&gt; assert p1.p() == p3.p()</span>
+<span class="sd">        &gt;&gt;&gt; collatz_p = P(133, basis=B.Collatz)  # Different basis</span>
+<span class="sd">        &gt;&gt;&gt; assert collatz_p != p1  # Different basis means different object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Handle binary string input</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">bit</span> <span class="ow">in</span> <span class="s2">&quot;01&quot;</span> <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">p</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid binary string: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span> <span class="ow">or</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Binary string must start with &#39;1&#39;: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;p-value must be a positive integer, got: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set default basis</span>
+    <span class="k">if</span> <span class="n">basis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">basis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span>
+
+    <span class="k">if</span> <span class="n">pred</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">next</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Use cached version for simple cases with predefined bases</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_create_p_cached</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">hash</span><span class="p">(</span><span class="n">basis</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># Custom basis - skip caching</span>
+            <span class="k">return</span> <span class="n">_P</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Handle pred/next relationships outside cache</span>
+        <span class="c1"># This ensures we don&#39;t cache instances with specific relationships</span>
+        <span class="k">return</span> <span class="n">_P</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="n">pred</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="nb">next</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clear the P instance cache.</span>
+
+<span class="sd">    This function clears all cached P instances, which can be useful for</span>
+<span class="sd">    memory management or when you want to ensure fresh instances are created.</span>
+<span class="sd">    After calling this function, subsequent calls to P() will create new</span>
+<span class="sd">    instances rather than returning cached ones.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; p1 = P(133)</span>
+<span class="sd">        &gt;&gt;&gt; clear_cache()</span>
+<span class="sd">        &gt;&gt;&gt; p2 = P(133)</span>
+<span class="sd">        &gt;&gt;&gt; assert p1 is not p2  # Different instances after cache clear</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_p_cached</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cache_info</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">CacheInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get cache statistics for P instances.</span>
+
+<span class="sd">    Returns cache hit/miss statistics and current cache size information</span>
+<span class="sd">    for the P instance cache. This is useful for performance monitoring</span>
+<span class="sd">    and cache effectiveness analysis.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Cache information object with hits, misses, maxsize, and currsize</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; info = cache_info()</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Cache hits: {info.hits}, misses: {info.misses}&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Cache size: {info.currsize}/{info.maxsize}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_create_p_cached</span><span class="o">.</span><span class="n">cache_info</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

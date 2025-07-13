@@ -1,0 +1,545 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plumial.utils.symbolic &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plumial.utils.symbolic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plumial.utils.symbolic</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Symbolic variable definitions for Collatz conjecture analysis.</span>
+
+<span class="sd">This module provides centralized symbolic variables used throughout</span>
+<span class="sd">the mathematical computations. It maintains compatibility with the original</span>
+<span class="sd">collatz library while providing better organization and documentation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sympy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sy</span>
+
+<span class="c1"># Primary symbolic variables for gh-polynomial forms</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;g&quot;</span><span class="p">)</span>  <span class="c1"># Generator parameter (typically g=3)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">)</span>  <span class="c1"># Base parameter (typically h=2)</span>
+
+<span class="c1"># Polynomial and mathematical variables</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>  <span class="c1"># Additive constant parameter</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>  <span class="c1"># d-polynomial</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>  <span class="c1"># Polynomial coefficient</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>  <span class="c1"># Variable</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>  <span class="c1"># Function or factor</span>
+
+<span class="c1"># UV polynomial variables (for path representation)</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;u&quot;</span><span class="p">)</span>  <span class="c1"># U parameter for UV polynomials</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>  <span class="c1"># V parameter for UV polynomials</span>
+
+<span class="c1"># Bit count and index variables</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>  <span class="c1"># Generic counter/multiplier</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">)</span>  <span class="c1"># Total number of bits (path length)</span>
+<span class="n">o</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">)</span>  <span class="c1"># Number of odd bits</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>  <span class="c1"># Number of even bits</span>
+
+<span class="c1"># Index and loop variables</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">)</span>  <span class="c1"># Loop index variable</span>
+<span class="n">j</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;j&quot;</span><span class="p">)</span>  <span class="c1"># Secondary loop index variable</span>
+
+<span class="c1"># P-value and related variables</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>  <span class="c1"># P-value symbol</span>
+
+<span class="c1"># Additional mathematical variables</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>  <span class="c1"># Binary/bit variable</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>  <span class="c1"># Coefficient variable</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>  <span class="c1"># Remainder variable</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">)</span>  <span class="c1"># Quotient variable</span>
+
+<span class="c1"># Mathematical constants</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Constant 2</span>
+<span class="n">three</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># Constant 3</span>
+
+
+<span class="c1"># Transformation constants for u,v ↔ g,h conversions</span>
+<span class="n">TRANSFORM_UV_TO_GH</span> <span class="o">=</span> <span class="p">{</span><span class="n">u</span><span class="p">:</span> <span class="n">g</span> <span class="o">*</span> <span class="n">h</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">h</span><span class="p">}</span>  <span class="c1"># u→gh, v→h transformation</span>
+<span class="n">TRANSFORM_GH_TO_UV</span> <span class="o">=</span> <span class="p">{</span><span class="n">g</span><span class="p">:</span> <span class="n">u</span> <span class="o">/</span> <span class="n">v</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span>  <span class="c1"># g→u/v, h→v transformation</span>
+
+<span class="c1"># Indexed symbols for sequences and arrays</span>
+<span class="n">p_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>  <span class="c1"># Indexed p-values: p[i]</span>
+<span class="n">x_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>  <span class="c1"># Indexed x-values: x[i]</span>
+<span class="n">k_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>  <span class="c1"># Indexed k-values: k[i]</span>
+<span class="n">b_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>  <span class="c1"># Indexed b-values: b[i]</span>
+<span class="n">e_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>  <span class="c1"># Indexed e-values: e[i]</span>
+<span class="n">o_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">)</span>  <span class="c1"># Indexed o-values: o[i]</span>
+<span class="n">m_indexed</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>  <span class="c1"># Indexed m-values: m[i]</span>
+
+<span class="c1"># Collections for convenience and organization</span>
+<span class="n">primary_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">]</span>
+<span class="n">polynomial_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+<span class="n">uv_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span>
+<span class="n">bit_count_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">e</span><span class="p">]</span>
+<span class="n">index_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+<span class="n">additional_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">q</span><span class="p">]</span>
+<span class="n">constants</span> <span class="o">=</span> <span class="p">[</span><span class="n">two</span><span class="p">,</span> <span class="n">three</span><span class="p">]</span>
+<span class="n">indexed_symbols</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">p_indexed</span><span class="p">,</span>
+    <span class="n">x_indexed</span><span class="p">,</span>
+    <span class="n">k_indexed</span><span class="p">,</span>
+    <span class="n">b_indexed</span><span class="p">,</span>
+    <span class="n">e_indexed</span><span class="p">,</span>
+    <span class="n">o_indexed</span><span class="p">,</span>
+    <span class="n">m_indexed</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># All basic symbols (non-indexed)</span>
+<span class="n">all_symbols</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">primary_symbols</span>
+    <span class="o">+</span> <span class="n">polynomial_symbols</span>
+    <span class="o">+</span> <span class="n">uv_symbols</span>
+    <span class="o">+</span> <span class="n">bit_count_symbols</span>
+    <span class="o">+</span> <span class="n">index_symbols</span>
+    <span class="o">+</span> <span class="n">additional_symbols</span>
+<span class="p">)</span>
+
+<span class="c1"># Symbol lookup dictionary for dynamic access</span>
+<span class="n">symbol_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;g&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span>
+    <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">h</span><span class="p">,</span>
+    <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span>
+    <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span>
+    <span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+    <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span>
+    <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="n">u</span><span class="p">,</span>
+    <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">,</span>
+    <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="n">m</span><span class="p">,</span>
+    <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+    <span class="s2">&quot;o&quot;</span><span class="p">:</span> <span class="n">o</span><span class="p">,</span>
+    <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="n">e</span><span class="p">,</span>
+    <span class="s2">&quot;i&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+    <span class="s2">&quot;j&quot;</span><span class="p">:</span> <span class="n">j</span><span class="p">,</span>
+    <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span>
+    <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span>
+    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span>
+    <span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">,</span>
+    <span class="s2">&quot;two&quot;</span><span class="p">:</span> <span class="n">two</span><span class="p">,</span>
+    <span class="s2">&quot;three&quot;</span><span class="p">:</span> <span class="n">three</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Substitution constants lookup</span>
+<span class="n">substitution_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;TRANSFORM_UV_TO_GH&quot;</span><span class="p">:</span> <span class="n">TRANSFORM_UV_TO_GH</span><span class="p">,</span>
+    <span class="s2">&quot;TRANSFORM_GH_TO_UV&quot;</span><span class="p">:</span> <span class="n">TRANSFORM_GH_TO_UV</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Indexed symbol lookup</span>
+<span class="n">indexed_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p_indexed</span><span class="p">,</span>
+    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x_indexed</span><span class="p">,</span>
+    <span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="n">k_indexed</span><span class="p">,</span>
+    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b_indexed</span><span class="p">,</span>
+    <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="n">e_indexed</span><span class="p">,</span>
+    <span class="s2">&quot;o&quot;</span><span class="p">:</span> <span class="n">o_indexed</span><span class="p">,</span>
+    <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="n">m_indexed</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_symbol">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.get_symbol">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_symbol</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a symbol by name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Symbol name (e.g., &#39;g&#39;, &#39;h&#39;, &#39;u&#39;, &#39;v&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SymPy symbol</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If symbol name is not found</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; get_symbol(&#39;g&#39;)</span>
+<span class="sd">        g</span>
+<span class="sd">        &gt;&gt;&gt; get_symbol(&#39;h&#39;)</span>
+<span class="sd">        h</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">symbol_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">symbol_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Symbol &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not found. Available symbols: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">symbol_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_indexed_symbol">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.get_indexed_symbol">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_indexed_symbol</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get an indexed symbol by name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Base symbol name (e.g., &#39;p&#39;, &#39;x&#39;, &#39;k&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SymPy indexed base</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If indexed symbol name is not found</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; get_indexed_symbol(&#39;p&#39;)</span>
+<span class="sd">        p</span>
+<span class="sd">        &gt;&gt;&gt; get_indexed_symbol(&#39;p&#39;)[0]</span>
+<span class="sd">        p[0]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">indexed_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">indexed_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Indexed symbol &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">indexed_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="substitute_values">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.substitute_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">substitute_values</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Substitute values into an expression using symbol names.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        expr: SymPy expression</span>
+<span class="sd">        **kwargs: Symbol names and their values (e.g., g=3, h=2)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Expression with substituted values</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; expr = g**2 + h</span>
+<span class="sd">        &gt;&gt;&gt; substitute_values(expr, g=3, h=2)</span>
+<span class="sd">        11</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">substitutions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">symbol_dict</span><span class="p">:</span>
+            <span class="n">substitutions</span><span class="p">[</span><span class="n">symbol_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown symbol name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_polynomial_expression">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.create_polynomial_expression">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_polynomial_expression</span><span class="p">(</span><span class="n">powers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a polynomial expression from symbol powers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        powers: Dictionary mapping symbol names to their powers</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SymPy polynomial expression</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; create_polynomial_expression({&#39;g&#39;: 2, &#39;h&#39;: 3})</span>
+<span class="sd">        g**2*h**3</span>
+<span class="sd">        &gt;&gt;&gt; create_polynomial_expression({&#39;u&#39;: 1, &#39;v&#39;: 2})</span>
+<span class="sd">        u*v**2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">power</span> <span class="ow">in</span> <span class="n">powers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">symbol_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">power</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">expr</span> <span class="o">*=</span> <span class="n">symbol_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">**</span> <span class="n">power</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown symbol name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">expr</span></div>
+
+
+
+<div class="viewcode-block" id="uv_to_gh_transform">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.uv_to_gh_transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">uv_to_gh_transform</span><span class="p">(</span><span class="n">uv_expr</span><span class="p">:</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform u,v polynomial to g,h form using TRANSFORM_UV_TO_GH.</span>
+
+<span class="sd">    This implements the substitution u → g·h, v → h which transforms</span>
+<span class="sd">    sigma polynomials to k polynomials (after appropriate scaling).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        uv_expr: Expression in u and v variables</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Expression in g and h variables</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; uv_expr = u**2 + v</span>
+<span class="sd">        &gt;&gt;&gt; uv_to_gh_transform(uv_expr)</span>
+<span class="sd">        g**2*h**2 + h</span>
+<span class="sd">        &gt;&gt;&gt; # Using the constant directly:</span>
+<span class="sd">        &gt;&gt;&gt; uv_expr.subs(TRANSFORM_UV_TO_GH)</span>
+<span class="sd">        g**2*h**2 + h</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">uv_expr</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">TRANSFORM_UV_TO_GH</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="gh_to_uv_transform">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.gh_to_uv_transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gh_to_uv_transform</span><span class="p">(</span><span class="n">gh_expr</span><span class="p">:</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform g,h polynomial to u,v form using TRANSFORM_GH_TO_UV.</span>
+
+<span class="sd">    This implements the reverse substitution g → u/v, h → v which transforms</span>
+<span class="sd">    k polynomials back to sigma polynomials (with appropriate scaling).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gh_expr: Expression in g and h variables</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Expression in u and v variables</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; # For expressions that result from u,v → g,h transformation:</span>
+<span class="sd">        &gt;&gt;&gt; gh_expr = g*h + h**2  # This came from u + v**2 originally</span>
+<span class="sd">        &gt;&gt;&gt; gh_to_uv_transform(gh_expr)</span>
+<span class="sd">        u + v**2</span>
+<span class="sd">        &gt;&gt;&gt; # Using the constant directly:</span>
+<span class="sd">        &gt;&gt;&gt; gh_expr.subs(TRANSFORM_GH_TO_UV)</span>
+<span class="sd">        u + v**2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gh_expr</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">TRANSFORM_GH_TO_UV</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_coefficients">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.extract_coefficients">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_coefficients</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract coefficients of powers of a variable from an expression.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        expr: SymPy expression</span>
+<span class="sd">        variable: Variable to extract coefficients for</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary mapping powers to coefficients</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; expr = 3*g**2 + 2*g + 5</span>
+<span class="sd">        &gt;&gt;&gt; extract_coefficients(expr, g)</span>
+<span class="sd">        {0: 5, 1: 2, 2: 3}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Poly</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">all_coeffs</span><span class="p">()</span>
+    <span class="n">degree</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
+
+    <span class="c1"># Create dictionary mapping power to coefficient</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coeffs</span><span class="p">):</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="n">degree</span> <span class="o">-</span> <span class="n">i</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">power</span><span class="p">]</span> <span class="o">=</span> <span class="n">coeff</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="c1"># Compatibility layer for original library usage patterns</span>
+<div class="viewcode-block" id="SymbolNamespace">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.SymbolNamespace">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SymbolNamespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Namespace class to mimic the original symbols module usage pattern.</span>
+
+<span class="sd">    This allows code like: S.g, S.h, S.u, S.v</span>
+<span class="sd">    where S = SymbolNamespace()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SymbolNamespace.__init__">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.SymbolNamespace.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Add all symbols as attributes</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbol_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span>
+
+        <span class="c1"># Add indexed symbols</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">indexed_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_indexed&quot;</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Fallback for any missing attributes</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">symbol_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">symbol_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">indexed_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">indexed_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Symbol &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Indexed symbols namespace class</span>
+<div class="viewcode-block" id="IndexedNamespace">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.IndexedNamespace">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IndexedNamespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Namespace class for indexed symbols to mimic the original I module usage pattern.</span>
+
+<span class="sd">    This allows code like: I.p[0], I.x[i], I.k[i,j]</span>
+<span class="sd">    where I = IndexedNamespace()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IndexedNamespace.__init__">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.IndexedNamespace.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Add all indexed symbols as attributes</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">indexed_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Fallback for any missing attributes</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">indexed_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">indexed_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Indexed symbol &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Import functions module for F namespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">_functions_module</span>
+
+
+<span class="c1"># Functions namespace class</span>
+<div class="viewcode-block" id="FunctionsNamespace">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.FunctionsNamespace">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FunctionsNamespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Namespace class for functions to mimic the original F module usage pattern.</span>
+
+<span class="sd">    This allows code like: F.isodd(p), F.k(3,2), F.next_func(p)</span>
+<span class="sd">    where F = FunctionsNamespace()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FunctionsNamespace.__init__">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.symbolic.FunctionsNamespace.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Add all functions from the functions module as attributes</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">_functions_module</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_functions_module</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Fallback for any missing attributes</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">_functions_module</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_functions_module</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Function &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Create default namespace instances for compatibility</span>
+<span class="n">S</span> <span class="o">=</span> <span class="n">SymbolNamespace</span><span class="p">()</span>
+<span class="n">I</span> <span class="o">=</span> <span class="n">IndexedNamespace</span><span class="p">()</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">FunctionsNamespace</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

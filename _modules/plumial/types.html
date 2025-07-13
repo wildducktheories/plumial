@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plumial.types &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plumial.types</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plumial.types</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Type definitions and aliases for the Plumial library.</span>
+
+<span class="sd">This module provides common type aliases and protocols used throughout</span>
+<span class="sd">the library for better type safety and code readability.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sympy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sy</span>
+
+<span class="c1"># Type aliases for common complex types</span>
+<span class="n">NumericType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for numeric values (int or float).&quot;&quot;&quot;</span>
+
+<span class="n">SymbolicType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for SymPy symbolic objects.&quot;&quot;&quot;</span>
+
+<span class="n">NumericOrSymbolic</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Rational</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for values that can be either numeric or symbolic.&quot;&quot;&quot;</span>
+
+<span class="n">OptionalNumeric</span> <span class="o">=</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NumericType</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for optional numeric values.&quot;&quot;&quot;</span>
+
+<span class="n">OptionalSymbolic</span> <span class="o">=</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SymbolicType</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for optional symbolic values.&quot;&quot;&quot;</span>
+
+<span class="n">BitPosition</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for bit position tuples.&quot;&quot;&quot;</span>
+
+<span class="n">BitPositionIterator</span> <span class="o">=</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for iterators yielding bit position tuples.&quot;&quot;&quot;</span>
+
+<span class="n">CycleIterator</span> <span class="o">=</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for iterators yielding cycle values.&quot;&quot;&quot;</span>
+
+<span class="n">SymbolDict</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for symbol lookup dictionaries.&quot;&quot;&quot;</span>
+
+<span class="n">IndexedDict</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">IndexedBase</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for indexed symbol lookup dictionaries.&quot;&quot;&quot;</span>
+
+<span class="n">CoefficientsDict</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for polynomial coefficient dictionaries.&quot;&quot;&quot;</span>
+
+<span class="n">SubstitutionDict</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SymbolicType</span><span class="p">,</span> <span class="n">NumericOrSymbolic</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for symbolic substitution dictionaries.&quot;&quot;&quot;</span>
+
+<span class="n">PowersDict</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for polynomial powers dictionaries.&quot;&quot;&quot;</span>
+
+<span class="n">ExpressionList</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for lists of symbolic expressions.&quot;&quot;&quot;</span>
+
+<span class="n">CacheInfo</span> <span class="o">=</span> <span class="n">Any</span>
+<span class="sd">&quot;&quot;&quot;Type alias for functools cache info objects.&quot;&quot;&quot;</span>
+
+
+<span class="c1"># Protocols for duck typing</span>
+<div class="viewcode-block" id="PValueProtocol">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.PValueProtocol">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PValueProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Protocol for objects that behave like P-values.</span>
+
+<span class="sd">    Objects implementing this protocol must provide methods to access</span>
+<span class="sd">    the p-value and its bit count properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PValueProtocol.p">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.PValueProtocol.p">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the p-value as an integer.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="PValueProtocol.n">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.PValueProtocol.n">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of path bits (total bits - 1).&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DPolynomialProtocol">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.DPolynomialProtocol">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DPolynomialProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Protocol for objects that behave like D objects.</span>
+
+<span class="sd">    Objects implementing this protocol must provide methods to access</span>
+<span class="sd">    polynomial properties and evaluation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DPolynomialProtocol.n">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.DPolynomialProtocol.n">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of path bits.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="DPolynomialProtocol.o">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.DPolynomialProtocol.o">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">o</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of odd bits.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="DPolynomialProtocol.e">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.DPolynomialProtocol.e">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of even bits.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="DPolynomialProtocol.d">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.DPolynomialProtocol.d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">OptionalNumeric</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="n">OptionalNumeric</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NumericOrSymbolic</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the d-polynomial.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CacheableProtocol">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.CacheableProtocol">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CacheableProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Protocol for objects that support caching operations.</span>
+
+<span class="sd">    Objects implementing this protocol must provide methods to</span>
+<span class="sd">    manage cache state and retrieve cache information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CacheableProtocol.cache_clear">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.CacheableProtocol.cache_clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cache_clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear the cache.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="CacheableProtocol.cache_info">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.CacheableProtocol.cache_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cache_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheInfo</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return cache statistics.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MathematicalExpressionProtocol">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.MathematicalExpressionProtocol">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MathematicalExpressionProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Protocol for objects that can be used in mathematical expressions.</span>
+
+<span class="sd">    This protocol defines the interface for objects that can participate</span>
+<span class="sd">    in symbolic mathematical operations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Addition operation.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtraction operation.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiplication operation.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exponentiation operation.&quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+
+<span class="c1"># Type guards for runtime type checking</span>
+<div class="viewcode-block" id="is_numeric">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.is_numeric">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_numeric</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a value is numeric (int or float).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: Value to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if value is int or float, False otherwise</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; is_numeric(42)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; is_numeric(3.14)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; is_numeric(&quot;not a number&quot;)</span>
+<span class="sd">        False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="is_symbolic">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.is_symbolic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_symbolic</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a value is a SymPy symbolic object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: Value to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if value is a SymPy symbol or expression, False otherwise</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; import sympy as sy</span>
+<span class="sd">        &gt;&gt;&gt; x = sy.Symbol(&#39;x&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; is_symbolic(x)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; is_symbolic(42)</span>
+<span class="sd">        False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">sy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="is_p_value_like">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.is_p_value_like">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_p_value_like</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if an object implements the PValueProtocol.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: Object to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if object has p() and n() methods, False otherwise</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from plumial import P</span>
+<span class="sd">        &gt;&gt;&gt; p_obj = P(133)</span>
+<span class="sd">        &gt;&gt;&gt; is_p_value_like(p_obj)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; is_p_value_like(42)</span>
+<span class="sd">        False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_d_polynomial_like">
+<a class="viewcode-back" href="../../api_reference.html#plumial.types.is_d_polynomial_like">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_d_polynomial_like</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if an object implements the DPolynomialProtocol.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: Object to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if object has required methods, False otherwise</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from plumial.core.D import D</span>
+<span class="sd">        &gt;&gt;&gt; d_obj = D(2, 5)</span>
+<span class="sd">        &gt;&gt;&gt; is_d_polynomial_like(d_obj)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; is_d_polynomial_like(&quot;not a polynomial&quot;)</span>
+<span class="sd">        False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">required_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">required_methods</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># Constants for common mathematical values</span>
+<span class="n">DEFAULT_G_VALUE</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="sd">&quot;&quot;&quot;Default value for the g parameter in Collatz analysis.&quot;&quot;&quot;</span>
+
+<span class="n">DEFAULT_H_VALUE</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="sd">&quot;&quot;&quot;Default value for the h parameter in Collatz analysis.&quot;&quot;&quot;</span>
+
+<span class="n">MAX_CACHE_SIZE</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="sd">&quot;&quot;&quot;Default maximum size for LRU caches.&quot;&quot;&quot;</span>
+
+<span class="c1"># Type hints for specific mathematical operations</span>
+<span class="n">PolynomialTuple</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for polynomial pairs (e.g., a,x polynomials).&quot;&quot;&quot;</span>
+
+<span class="n">GCDResult</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">sy</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for GCD computation results.&quot;&quot;&quot;</span>
+
+<span class="n">FactorResult</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">Expr</span>
+<span class="sd">&quot;&quot;&quot;Type alias for polynomial factorization results.&quot;&quot;&quot;</span>
+
+<span class="n">BinaryPattern</span> <span class="o">=</span> <span class="nb">str</span>
+<span class="sd">&quot;&quot;&quot;Type alias for binary pattern strings.&quot;&quot;&quot;</span>
+
+<span class="n">CycleStatistics</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for cycle statistics dictionaries.&quot;&quot;&quot;</span>
+
+<span class="n">BitAnalysis</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
+<span class="sd">&quot;&quot;&quot;Type alias for bit pattern analysis results.&quot;&quot;&quot;</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

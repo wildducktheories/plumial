@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mathematical Foundations of Plumial" href="mathematical_foundations.html" />
+    <link rel="prev" title="Plumial: Collatz Conjecture Analysis" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-p-objects">Creating P Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-polynomials">Working with Polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cycle-navigation">Cycle Navigation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#symbolic-mathematics">Symbolic Mathematics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functional-operations">Functional Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-analysis">Data Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-topics">Advanced Topics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#d-polynomials">D Polynomials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#type-safety">Type Safety</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mathematical-background">Mathematical Background</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading"></a></h1>
+<p>This tutorial introduces the key concepts and usage patterns of the Plumial library for Collatz conjecture analysis.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>The Plumial library provides tools for analyzing the Collatz conjecture through polynomial representations. The core idea is to encode the binary path information of Collatz sequences as polynomials.</p>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<section id="creating-p-objects">
+<h3>Creating P Objects<a class="headerlink" href="#creating-p-objects" title="Link to this heading"></a></h3>
+<p>The fundamental object in Plumial is the P class, which represents a path polynomial:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plumial</span><span class="w"> </span><span class="kn">import</span> <span class="n">P</span>
+
+<span class="c1"># Create a polynomial for p-value 133</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+
+<span class="c1"># Get basic properties</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;p-value: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 133</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total bits: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 7</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Odd bits: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 2</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Even bits: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">e</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 5</span>
+</pre></div>
+</div>
+</section>
+<section id="working-with-polynomials">
+<h3>Working with Polynomials<a class="headerlink" href="#working-with-polynomials" title="Link to this heading"></a></h3>
+<p>P objects provide several polynomial representations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plumial.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">B</span>
+
+<span class="c1"># d-polynomial (symbolic)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">())</span>  <span class="c1"># h**5 - g**2</span>
+
+<span class="c1"># K polynomial (symbolic)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">())</span>  <span class="c1"># Symbolic k polynomial</span>
+
+<span class="c1"># UV polynomial representation</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">uv</span><span class="p">())</span>  <span class="c1"># Polynomial in u and v variables</span>
+
+<span class="c1"># Evaluate numerically using basis encoding</span>
+<span class="n">collatz_p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">collatz_p</span><span class="o">.</span><span class="n">d</span><span class="p">())</span>  <span class="c1"># 23</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">collatz_p</span><span class="o">.</span><span class="n">k</span><span class="p">())</span>  <span class="c1"># Numerical evaluation</span>
+</pre></div>
+</div>
+</section>
+<section id="cycle-navigation">
+<h3>Cycle Navigation<a class="headerlink" href="#cycle-navigation" title="Link to this heading"></a></h3>
+<p>P objects can navigate through their cycles:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get next/previous elements</span>
+<span class="n">next_p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+<span class="n">prev_p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">pred</span><span class="p">()</span>
+
+<span class="c1"># Iterate through the entire cycle</span>
+<span class="k">for</span> <span class="n">p_obj</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">cycle</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">p_obj</span><span class="o">.</span><span class="n">p</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="symbolic-mathematics">
+<h2>Symbolic Mathematics<a class="headerlink" href="#symbolic-mathematics" title="Link to this heading"></a></h2>
+<p>Plumial provides three namespace objects for mathematical work:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plumial.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">S</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">F</span>
+
+<span class="c1"># S: Symbol namespace</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">S</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># Basic symbols</span>
+
+<span class="c1"># I: Indexed symbols</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">I</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">I</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">S</span><span class="o">.</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># Indexed symbols</span>
+
+<span class="c1"># F: Functions namespace</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">isodd</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>  <span class="c1"># True if p-value is odd</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">n</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>  <span class="c1"># Get bit count</span>
+</pre></div>
+</div>
+</section>
+<section id="functional-operations">
+<h2>Functional Operations<a class="headerlink" href="#functional-operations" title="Link to this heading"></a></h2>
+<p>The F namespace provides functional programming utilities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create curried functions for encoded objects</span>
+<span class="n">collatz_p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz</span><span class="p">)</span>
+<span class="n">k_func</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>  <span class="c1"># Returns lambda p: p.k()</span>
+
+<span class="c1"># Use with cycle operations</span>
+<span class="n">k_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">collatz_p</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="nb">map</span><span class="o">=</span><span class="n">k_func</span><span class="p">))</span>
+
+<span class="c1"># Filter odd elements and map to k values</span>
+<span class="n">odd_k_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">collatz_p</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="nb">map</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">k</span><span class="p">(),</span> <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">isodd</span><span class="p">))</span>
+
+<span class="c1"># Compose operations</span>
+<span class="n">composed</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">next</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">composed</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>  <span class="c1"># n(next(p))</span>
+</pre></div>
+</div>
+</section>
+<section id="data-analysis">
+<h2>Data Analysis<a class="headerlink" href="#data-analysis" title="Link to this heading"></a></h2>
+<p>Convert cycle data to pandas DataFrames for analysis:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plumial.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+
+<span class="c1"># Convert cycle to DataFrame</span>
+<span class="n">collatz_p133</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="n">collatz_p133</span><span class="o">.</span><span class="n">cycle</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1"># Analyze patterns</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average k value: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Odd elements: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-topics">
+<h2>Advanced Topics<a class="headerlink" href="#advanced-topics" title="Link to this heading"></a></h2>
+<section id="d-polynomials">
+<h3>D Polynomials<a class="headerlink" href="#d-polynomials" title="Link to this heading"></a></h3>
+<p>Work directly with D objects for algebraic analysis:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plumial</span><span class="w"> </span><span class="kn">import</span> <span class="n">D</span>
+
+<span class="c1"># Create d polynomial from odd and even bit counts</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">D</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># Mathematical operations</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">d</span><span class="p">())</span>  <span class="c1"># h**5 - g**2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">gcd_result</span><span class="p">())</span>  <span class="c1"># GCD analysis</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-considerations">
+<h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h3>
+<p>Plumial uses LRU caching for performance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plumial.core.polynomials</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_info</span><span class="p">,</span> <span class="n">clear_cache</span>
+
+<span class="c1"># Check cache statistics</span>
+<span class="n">info</span> <span class="o">=</span> <span class="n">cache_info</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cache hits: </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">hits</span><span class="si">}</span><span class="s2">, misses: </span><span class="si">{</span><span class="n">info</span><span class="o">.</span><span class="n">misses</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Clear cache if needed</span>
+<span class="n">clear_cache</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="type-safety">
+<h3>Type Safety<a class="headerlink" href="#type-safety" title="Link to this heading"></a></h3>
+<p>Plumial provides comprehensive type hints:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">plumial.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PValueProtocol</span><span class="p">,</span> <span class="n">OptionalNumeric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_cycle</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Type-safe cycle processing.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">cycle</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">obj</span><span class="o">.</span><span class="n">p</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mathematical-background">
+<h2>Mathematical Background<a class="headerlink" href="#mathematical-background" title="Link to this heading"></a></h2>
+<p>The Collatz conjecture involves sequences defined by:</p>
+<ul class="simple">
+<li><p>If n is even: n → n/2</p></li>
+<li><p>If n is odd: n → 3n + 1</p></li>
+</ul>
+<p>Plumial encodes the binary path of these operations as polynomials:</p>
+<ul class="simple">
+<li><p>Path objects (P): Hydrated path identifiers that encode the sequence of operations</p></li>
+<li><p>D polynomials (D): h^e - g^o where e=even bits, o=odd bits</p></li>
+<li><p>UV polynomials: Binary path representation using u and v variables</p></li>
+<li><p>K polynomials: Derived from UV→GH transformations</p></li>
+</ul>
+<p>This mathematical framework enables algebraic analysis of Collatz behavior and cycle detection.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Plumial: Collatz Conjecture Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mathematical_foundations.html" class="btn btn-neutral float-right" title="Mathematical Foundations of Plumial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

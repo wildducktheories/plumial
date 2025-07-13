@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plumial.utils.binary &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plumial.utils.binary</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plumial.utils.binary</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Binary operations for Collatz conjecture analysis.</span>
+
+<span class="sd">This module provides comprehensive bit manipulation functions for working with p-values,</span>
+<span class="sd">cycle navigation, and binary representations used in Collatz sequence analysis.</span>
+
+<span class="sd">The module implements the core bit-level operations that underlie the mathematical</span>
+<span class="sd">structure of Collatz sequences, including:</span>
+
+<span class="sd">Key Concepts:</span>
+<span class="sd">    - P-values: Binary-encoded representations of Collatz sequence paths</span>
+<span class="sd">    - MSB encoding: The most significant bit encodes the path length</span>
+<span class="sd">    - Cycle bits: Lower bits encode the actual sequence operations</span>
+<span class="sd">    - Odd/Even bits: Correspond to 3x+1 and halving operations respectively</span>
+
+<span class="sd">Functions:</span>
+<span class="sd">    - Bit counting: n(), o(), e() for analyzing bit structure</span>
+<span class="sd">    - Cycle navigation: next_p(), pred_p(), cycle() for traversing sequences</span>
+<span class="sd">    - Binary conversion: binary_string(), from_binary_string() for representations</span>
+<span class="sd">    - Analysis: bit_pattern_analysis(), cycle_statistics() for detailed examination</span>
+
+<span class="sd">Mathematical Background:</span>
+<span class="sd">    P-values use a special encoding where:</span>
+<span class="sd">    - MSB (position n): Length bit (always 1)</span>
+<span class="sd">    - Lower n bits: Actual cycle operations</span>
+<span class="sd">    - Odd bits (1): Correspond to 3x+1 operations</span>
+<span class="sd">    - Even bits (0): Correspond to halving operations</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">    &gt;&gt;&gt; p = 133  # Binary: 10000101</span>
+<span class="sd">    &gt;&gt;&gt; n(p)  # 7 (total path bits)</span>
+<span class="sd">    &gt;&gt;&gt; o(p)  # 2 (odd operations: 3x+1)</span>
+<span class="sd">    &gt;&gt;&gt; e(p)  # 5 (even operations: halving)</span>
+<span class="sd">    &gt;&gt;&gt; list(cycle(p))  # Full cycle starting from p=133</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="c1"># Import type aliases for better type safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BinaryPattern</span><span class="p">,</span>
+    <span class="n">BitAnalysis</span><span class="p">,</span>
+    <span class="n">BitPosition</span><span class="p">,</span>
+    <span class="n">BitPositionIterator</span><span class="p">,</span>
+    <span class="n">CycleIterator</span><span class="p">,</span>
+    <span class="n">CycleStatistics</span><span class="p">,</span>
+    <span class="n">PValueProtocol</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="n">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.n">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the number of path bits implied by p.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value (must be &gt; 0)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of path bits (bit_length - 1)</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; n(133)  # 133 = 0b10000101</span>
+<span class="sd">        7</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="o">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.o">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">o</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the number of &#39;odd&#39; bits in p.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value (must be &gt; 0)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of odd bits (bit_count - 1)</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; o(133)  # 133 = 0b10000101 has 3 ones</span>
+<span class="sd">        2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="e">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.e">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">e</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the number of &#39;even&#39; bits in p.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value (must be &gt; 0)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Number of even bits (n - o)</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; e(133)  # n=7, o=2, so e=5</span>
+<span class="sd">        5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">n</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">o</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_odd">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.is_odd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_odd</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if p represents an odd step in Collatz sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if p is odd, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="next_p">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.next_p">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">next_p</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate the MSB-1 into the LSB and shift other bits left.</span>
+
+<span class="sd">    This implements the bit rotation for cycle navigation in Collatz analysis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Next p-value in the cycle</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; next_p(133)  # Binary rotation</span>
+<span class="sd">        198</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_n</span> <span class="o">=</span> <span class="n">n</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">p</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">_n</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">p</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">_n</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span> <span class="o">|</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">_n</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pred_p">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.pred_p">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pred_p</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate the lower n-1 bits of p to the left (predecessor operation).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Previous p-value in the cycle</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; pred_p(next_p(133))</span>
+<span class="sd">        133</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_n</span> <span class="o">=</span> <span class="n">n</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">p</span>  <span class="c1"># Special case: no cycle bits to rotate</span>
+
+    <span class="n">stop</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">_n</span>  <span class="c1"># MSB used to encode the length</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># every bit lower than the stop bit</span>
+
+    <span class="c1"># shift the lower bits left, the high bit right, add back the stop bit</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">p</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">mask</span> <span class="o">|</span> <span class="p">(</span><span class="n">p</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">_n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">stop</span></div>
+
+
+
+<div class="viewcode-block" id="cycle">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.cycle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cycle</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">first_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumerate the cycle of p values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: Starting p-value</span>
+<span class="sd">        first_only: If True, stop after the first repetition</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        p-values in the cycle</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; list(cycle(9))  # Full cycle</span>
+<span class="sd">        [9, 10, 5, 6, 3, 8, 4, 2]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_n</span> <span class="o">=</span> <span class="n">n</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">first_only</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">while</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="n">_n</span> <span class="ow">or</span> <span class="p">(</span><span class="n">first_only</span> <span class="ow">and</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">first_only</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">p</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">next_p</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="binary_string">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.binary_string">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">binary_string</span><span class="p">(</span><span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BinaryPattern</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate binary string representation of integer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        b: Integer to convert</span>
+<span class="sd">        width: Minimum width (right-justified with zeros)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Binary string representation</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; binary_string(133)</span>
+<span class="sd">        &#39;10000101&#39;</span>
+<span class="sd">        &gt;&gt;&gt; binary_string(133, 10)</span>
+<span class="sd">        &#39;0010000101&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">format</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="from_binary_string">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.from_binary_string">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_binary_string</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">BinaryPattern</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert binary string to integer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        s: Binary string (e.g., &#39;10000101&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Integer value</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from_binary_string(&#39;10000101&#39;)</span>
+<span class="sd">        133</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="odd_bit_indices">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.odd_bit_indices">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">odd_bit_indices</span><span class="p">(</span><span class="n">p_obj</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BitPositionIterator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate indices of odd bits in a p-value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p_obj: P object with p() and n() methods</span>
+<span class="sd">        matrix: If True, return matrix indices (o,e), else vector indices (i,)</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        Tuples of indices where odd bits occur</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; p = P(133)</span>
+<span class="sd">        &gt;&gt;&gt; list(odd_bit_indices(p))  # Vector form</span>
+<span class="sd">        [(0,), (7,)]</span>
+<span class="sd">        &gt;&gt;&gt; list(odd_bit_indices(p, matrix=True))  # Matrix form</span>
+<span class="sd">        [(0, 0), (1, 5)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">p</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matrix</span><span class="p">:</span>
+        <span class="c1"># Vector form: yield (i,) for each odd bit position</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p_obj</span><span class="o">.</span><span class="n">n</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">w</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="p">(</span><span class="n">i</span><span class="p">,)</span>
+            <span class="n">w</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Matrix form: yield (o_index, e_index) for each odd bit</span>
+        <span class="n">e_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">o_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p_obj</span><span class="o">.</span><span class="n">n</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">w</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="p">(</span><span class="n">o_count</span><span class="p">,</span> <span class="n">e_count</span><span class="p">)</span>
+                <span class="n">o_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">w</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="bit_pattern_analysis">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.bit_pattern_analysis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bit_pattern_analysis</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BitAnalysis</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze the bit pattern of a p-value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: The p-value</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary with pattern analysis</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; bit_pattern_analysis(133)</span>
+<span class="sd">        {</span>
+<span class="sd">            &#39;binary&#39;: &#39;10000101&#39;,</span>
+<span class="sd">            &#39;n&#39;: 7, &#39;o&#39;: 2, &#39;e&#39;: 5,</span>
+<span class="sd">            &#39;odd_positions&#39;: [0, 7],</span>
+<span class="sd">            &#39;even_positions&#39;: [1, 2, 3, 4, 5, 6]</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">binary_repr</span> <span class="o">=</span> <span class="n">binary_string</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">_n</span> <span class="o">=</span> <span class="n">n</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">_o</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">_e</span> <span class="o">=</span> <span class="n">e</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="c1"># Find positions of odd and even bits (from right, 0-indexed)</span>
+    <span class="n">odd_positions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">even_positions</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">odd_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">even_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary_repr</span><span class="p">,</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span>
+        <span class="s2">&quot;o&quot;</span><span class="p">:</span> <span class="n">_o</span><span class="p">,</span>
+        <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="n">_e</span><span class="p">,</span>
+        <span class="s2">&quot;odd_positions&quot;</span><span class="p">:</span> <span class="n">odd_positions</span><span class="p">,</span>
+        <span class="s2">&quot;even_positions&quot;</span><span class="p">:</span> <span class="n">even_positions</span><span class="p">,</span>
+        <span class="s2">&quot;cycle_length&quot;</span><span class="p">:</span> <span class="n">_n</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="validate_p_value">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.validate_p_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_p_value</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate that p is a proper p-value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: Value to validate</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if p is a valid p-value, False otherwise</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; validate_p_value(133)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; validate_p_value(0)</span>
+<span class="sd">        False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Check that the MSB is set (required for p-value encoding)</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># MSB should be 1 for proper p-value encoding</span>
+    <span class="n">msb_position</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">p</span> <span class="o">&gt;&gt;</span> <span class="n">msb_position</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="p_from_binary_pattern">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.p_from_binary_pattern">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">p_from_binary_pattern</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create p-value from binary pattern string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pattern: Binary pattern (without leading MSB)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        p-value with MSB set</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; p_from_binary_pattern(&#39;0000101&#39;)</span>
+<span class="sd">        133  # &#39;1&#39; + &#39;0000101&#39; = &#39;10000101&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pattern</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Minimal p-value</span>
+
+    <span class="c1"># Add MSB and convert</span>
+    <span class="n">full_pattern</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="o">+</span> <span class="n">pattern</span>
+    <span class="k">return</span> <span class="n">from_binary_string</span><span class="p">(</span><span class="n">full_pattern</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cycle_statistics">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.binary.cycle_statistics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cycle_statistics</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CycleStatistics</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate statistics for a p-value cycle.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: Starting p-value</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary with cycle statistics</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cycle_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cycle</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;cycle_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycle_values</span><span class="p">),</span>
+        <span class="s2">&quot;min_p&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">cycle_values</span><span class="p">),</span>
+        <span class="s2">&quot;max_p&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">cycle_values</span><span class="p">),</span>
+        <span class="s2">&quot;odd_count&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">o</span><span class="p">(</span><span class="n">pval</span><span class="p">)</span> <span class="k">for</span> <span class="n">pval</span> <span class="ow">in</span> <span class="n">cycle_values</span><span class="p">),</span>
+        <span class="s2">&quot;even_count&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span><span class="p">(</span><span class="n">pval</span><span class="p">)</span> <span class="k">for</span> <span class="n">pval</span> <span class="ow">in</span> <span class="n">cycle_values</span><span class="p">),</span>
+        <span class="s2">&quot;cycle_values&quot;</span><span class="p">:</span> <span class="n">cycle_values</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

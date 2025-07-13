@@ -1,0 +1,558 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mathematical Foundations of Plumial &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api_reference.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mathematical Foundations of Plumial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-from-sequences-to-polynomials">Introduction: From Sequences to Polynomials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-1-p-values-and-binary-path-encoding">Chapter 1: p-values and Binary Path Encoding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#foundation-separated-binary-representation">Foundation: Separated Binary Representation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bit-counting-and-path-structure">Bit Counting and Path Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-2-from-binary-paths-to-sigma-polynomials">Chapter 2: From Binary Paths to Sigma Polynomials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-ur-cycle-and-cyclic-structure">The Ur-Cycle and Cyclic Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-sigma-polynomial-construction">The Sigma Polynomial Construction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-3-the-k-polynomial-transformation">Chapter 3: The k Polynomial Transformation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-u-v-to-g-h-the-k-polynomial">From u,v to g,h: The k Polynomial</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-4-the-fundamental-identity">Chapter 4: The Fundamental Identity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-d-polynomial-and-cycle-constraints">The d Polynomial and Cycle Constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-cycle-element-identity">The Cycle Element Identity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-5-cycle-theory">Chapter 5: Cycle Theory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#natural-and-reduced-cycles">Natural and Reduced Cycles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cycle-factorization">Cycle Factorization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-6-advanced-topics">Chapter 6: Advanced Topics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cyclotomic-connections">Cyclotomic Connections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forced-vs-unforced-cycles">Forced vs Unforced Cycles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-glitched-collatz-cycle-revealing-the-animation">The Glitched Collatz Cycle: Revealing the Animation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#chapter-7-implementation-in-plumial">Chapter 7: Implementation in Plumial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#design-philosophy">Design Philosophy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#code-architecture">Code Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mathematical-validation">Mathematical Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion-mathematical-power-through-abstraction">Conclusion: Mathematical Power Through Abstraction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Mathematical Foundations of Plumial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mathematical_foundations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mathematical-foundations-of-plumial">
+<h1>Mathematical Foundations of Plumial<a class="headerlink" href="#mathematical-foundations-of-plumial" title="Link to this heading"></a></h1>
+<p>This document provides the mathematical foundations underlying the Plumial library’s approach to Collatz conjecture analysis. The framework transforms the discrete dynamics of Collatz sequences into algebraic operations on polynomial spaces, enabling systematic analysis of cycle structures and their properties.</p>
+<section id="introduction-from-sequences-to-polynomials">
+<h2>Introduction: From Sequences to Polynomials<a class="headerlink" href="#introduction-from-sequences-to-polynomials" title="Link to this heading"></a></h2>
+<p>The Collatz conjecture studies sequences defined by simple rules:</p>
+<ul class="simple">
+<li><p>If n is even: n → n/2</p></li>
+<li><p>If n is odd: n → 3n + 1</p></li>
+</ul>
+<p>While these operations appear elementary, they generate complex dynamics that have resisted mathematical analysis for decades. Plumial’s approach transforms this discrete problem into polynomial algebra, where powerful mathematical tools become available.</p>
+<p><strong>Key Insight</strong>: Rather than studying individual Collatz sequences, we can encode their <em>binary path structure</em> as polynomials and study the resulting algebraic relationships.</p>
+</section>
+<section id="chapter-1-p-values-and-binary-path-encoding">
+<h2>Chapter 1: p-values and Binary Path Encoding<a class="headerlink" href="#chapter-1-p-values-and-binary-path-encoding" title="Link to this heading"></a></h2>
+<section id="foundation-separated-binary-representation">
+<h3>Foundation: Separated Binary Representation<a class="headerlink" href="#foundation-separated-binary-representation" title="Link to this heading"></a></h3>
+<p>Every positive integer p can be uniquely written as:</p>
+<div class="math">
+<p><img src="_images/math/261dae03f88f3eb469388b1b163abcc8b75f3c81.png" alt="p = 2^{n_p} + \sum_{i=0}^{n_p-1} b_{p,i} \cdot 2^i"/></p>
+</div><p>where:</p>
+<ul class="simple">
+<li><p><strong>n</strong><sub>p</sub>: The path length (position of most significant bit)</p></li>
+<li><p><strong>b</strong><sub>p,i</sub> <strong>∈ {0,1}</strong>: The ith bit in the path portion</p></li>
+<li><p><strong>2^{n_p}</strong>: The separated most significant bit</p></li>
+</ul>
+<p><strong>Example</strong>: For p = 133:</p>
+<div class="math">
+<p><img src="_images/math/f29ef6654e24b5b6607333ad079e5d91bed18dd7.png" alt="133 = 2^7 + 0 \cdot 2^6 + 0 \cdot 2^5 + 0 \cdot 2^4 + 0 \cdot 2^3 + 1 \cdot 2^2 + 0 \cdot 2^1 + 1 \cdot 2^0"/></p>
+</div><p>Binary: <code class="docutils literal notranslate"><span class="pre">10000101</span></code> → MSB: <code class="docutils literal notranslate"><span class="pre">1</span></code>, Path: <code class="docutils literal notranslate"><span class="pre">0000101</span></code></p>
+</section>
+<section id="bit-counting-and-path-structure">
+<h3>Bit Counting and Path Structure<a class="headerlink" href="#bit-counting-and-path-structure" title="Link to this heading"></a></h3>
+<p>From the path portion, we extract fundamental quantities:</p>
+<ul class="simple">
+<li><p><strong>o</strong><sub>p</sub>: Number of odd bits (number of 1s in path portion)</p></li>
+<li><p><strong>e</strong><sub>p</sub>: Number of even bits (number of 0s in path portion)</p></li>
+<li><p><strong>n</strong><sub>p</sub>: Total path length = o<sub>p</sub> + e<sub>p</sub></p></li>
+</ul>
+<p>These quantities are invariant under the p-cycle operations that define the cyclic structure.</p>
+<p><strong>Plumial Implementation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">()</span>  <span class="c1"># 7 (path length)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">()</span>  <span class="c1"># 2 (odd operations)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">e</span><span class="p">()</span>  <span class="c1"># 5 (even operations)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">b</span><span class="p">()</span>  <span class="c1"># &#39;10000101&#39; (full binary)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="chapter-2-from-binary-paths-to-sigma-polynomials">
+<h2>Chapter 2: From Binary Paths to Sigma Polynomials<a class="headerlink" href="#chapter-2-from-binary-paths-to-sigma-polynomials" title="Link to this heading"></a></h2>
+<section id="the-ur-cycle-and-cyclic-structure">
+<h3>The Ur-Cycle and Cyclic Structure<a class="headerlink" href="#the-ur-cycle-and-cyclic-structure" title="Link to this heading"></a></h3>
+<p>The <strong>ur-cycle</strong> is the fundamental cyclic permutation of the lower n<sub>p</sub> bits of the p-value. This cyclic structure connects all subsequent polynomial encodings and provides the foundation for understanding Collatz dynamics through algebraic methods.</p>
+</section>
+<section id="the-sigma-polynomial-construction">
+<h3>The Sigma Polynomial Construction<a class="headerlink" href="#the-sigma-polynomial-construction" title="Link to this heading"></a></h3>
+<a class="reference internal image-reference" href="_images/watch-animation.gif"><img alt="Animated visualization of sigma polynomial construction" class="align-center" src="_images/watch-animation.gif" style="width: 600px;" />
+</a>
+<p><em>The sigma polynomial</em> σ<sub>p</sub>(u,v) <em>in action for a very special p-value…</em></p>
+<p>The sigma polynomial σ<sub>p</sub>(u,v) encodes the binary path structure:</p>
+<div class="math">
+<p><img src="_images/math/49998ad04c8fcd11122be29ea76fd1ac6e53964e.png" alt="\sigma_p(u,v) = \sum_{i=0}^{n_p-1} b_{p,i} \cdot u^{o_p - o(p,i)} \cdot v^i"/></p>
+</div><p>where o(p,i) counts the number of 1-bits from position 0 to position i.</p>
+<p><strong>Intuitive Structure</strong>: The exponents in each term u^i · v^j have clear meaning:
+- <strong>j</strong>: The bit position of the path bit
+- <strong>i</strong>: The index of this path bit among all path bits (counting odd bits)</p>
+<p>This creates a natural correspondence between the binary structure and polynomial representation.</p>
+<p><strong>Key Properties</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Bijection</strong>: There’s a one-to-one correspondence between p-values and sigma polynomials</p></li>
+<li><p><strong>Reconstruction</strong>: p = 2^(n_p) + σ<sub>p</sub>(1,2) recovers the original p-value</p></li>
+<li><p><strong>Structure Preservation</strong>: p-cycle operations correspond to polynomial transformations</p></li>
+<li><p><strong>Complete Encoding</strong>: The pair (n<sub>p</sub>, σ<sub>p</sub>) provides a complete algebraic encoding of the cyclic structure</p></li>
+<li><p><strong>Intuitive Exponents</strong>: Each term’s exponents directly encode bit position and path structure</p></li>
+</ol>
+<p><strong>Example</strong>: For P(21) with binary <code class="docutils literal notranslate"><span class="pre">10101</span></code>:</p>
+<ul class="simple">
+<li><p>Path portion: <code class="docutils literal notranslate"><span class="pre">0101</span></code></p></li>
+<li><p>o<sub>p</sub> = 2, e<sub>p</sub> = 2, n<sub>p</sub> = 4</p></li>
+<li><p>Sigma polynomial: u + v²</p></li>
+</ul>
+<p><strong>Breaking down the exponents</strong>:</p>
+<ul class="simple">
+<li><p>Term u¹ · v⁰ = u: 1st path bit (bit 0) has value 1, position 0</p></li>
+<li><p>Term u⁰ · v² = v²: 2nd path bit (bit 2) has value 1, position 2</p></li>
+<li><p>The exponents directly encode: v^(position) for each set bit</p></li>
+</ul>
+<blockquote>
+<div><p>Path bits are counted from the right (LSB), not the left per typical conventions for representing integers as strings of binary digits. In the sigma polynomial σ<sub>p</sub>(u,v):</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><strong>v exponent = bit position</strong> (counted from right, starting at 0)</p></li>
+<li><p><strong>u exponent = path bit index</strong> (count of this bit among all path bits)</p></li>
+</ul>
+<p>For example, in u + v²:
+- The first path bit is at position 0 (rightmost), giving term u¹ · v⁰ = u
+- The second path bit is at position 2, giving term u⁰ · v² = v²</p>
+<p>This right-to-left bit counting matches the mathematical convention and ensures the exponents directly encode the structural relationships in the polynomial representation.</p>
+<p><strong>Reconstruction Identity</strong>:</p>
+<div class="math">
+<p><img src="_images/math/590b5f319f898881c89c333383f4acea1b142047.png" alt="p = 2^{n_p} + \sigma_p(1,2)"/></p>
+</div><p><strong>Plumial Implementation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">uv</span><span class="p">()</span>  <span class="c1"># Returns: u + v**2</span>
+<span class="n">n_p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">()</span>     <span class="c1"># Returns: 4</span>
+
+<span class="c1"># Verify reconstruction identity</span>
+<span class="n">reconstructed</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">n_p</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">S</span><span class="o">.</span><span class="n">u</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">v</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reconstructed</span><span class="p">)</span>  <span class="c1"># Returns: 21 (original p-value)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Mystery of the Animation</strong>: The hypnotic visualization above shows something quite remarkable - a “glitched” Collatz cycle that shouldn’t exist according to the standard conjecture. The p-value 281 was chosen for a very cheeky reason… The full revelation of what you’re seeing, including the complete cycle enumeration and the mathematical beauty of complex roots of unity, awaits in Chapter 6: Advanced Topics.</p>
+</div>
+</section>
+</section>
+<section id="chapter-3-the-k-polynomial-transformation">
+<h2>Chapter 3: The k Polynomial Transformation<a class="headerlink" href="#chapter-3-the-k-polynomial-transformation" title="Link to this heading"></a></h2>
+<section id="from-u-v-to-g-h-the-k-polynomial">
+<h3>From u,v to g,h: The k Polynomial<a class="headerlink" href="#from-u-v-to-g-h-the-k-polynomial" title="Link to this heading"></a></h3>
+<p>The k polynomial is derived through the transformation u → g·h, v → h:</p>
+<div class="math">
+<p><img src="_images/math/6876c3736c595c1f402f2078dde18e13580155a6.png" alt="k_p(g,h) = \frac{\sigma_p(g \cdot h, h)}{h^{o_p-1}}"/></p>
+</div><p>This transformation:</p>
+<ul class="simple">
+<li><p><strong>Preserves Bijection</strong>: One-to-one correspondence between p-values and k polynomials</p></li>
+<li><p><strong>Reversible Transformation</strong>: σ<sub>p</sub> can be recovered from k<sub>p</sub> by suitable arguments and scaling</p></li>
+<li><p><strong>Natural Encoding</strong>: k<sub>p</sub>(g,h) provides the natural cycle encoding (gk+d, x/h)</p></li>
+<li><p><strong>Collatz Connection</strong>: For g=3, h=2, this becomes the standard Collatz system</p></li>
+<li><p><strong>Cyclic Structure</strong>: Integer evaluations encode the complete p-cycle structure</p></li>
+</ul>
+<p><strong>Relationship</strong>:</p>
+<div class="math">
+<p><img src="_images/math/7e98dfb82c442e9b7a7b67dd71a213909bf8ad58.png" alt="k_p(g,h) \cdot h^{o_p-1} = \sigma_p(g \cdot h, h)"/></p>
+</div><p><strong>Reverse Transformation</strong>:</p>
+<div class="math">
+<p><img src="_images/math/0e58edb0ab22ca1751feb2672be6041ee934f96b.png" alt="\sigma_p(u,v) = k_p\left(\frac{u}{v}, v\right) \cdot v^{o_p-1}"/></p>
+</div><p><strong>Plumial Implementation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">uv</span><span class="p">()</span>  <span class="c1"># Original sigma polynomial</span>
+<span class="n">k_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>  <span class="c1"># k polynomial</span>
+
+<span class="c1"># Forward transformation: sigma -&gt; k</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">k_poly</span><span class="p">)</span>   <span class="c1"># Derived from sigma</span>
+
+<span class="c1"># Reverse transformation: k -&gt; sigma (using relationship)</span>
+<span class="c1"># sigma_p(u,v) = k_p(u/v, v) * v^(o_p-1)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plumial.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">S</span><span class="p">,</span> <span class="n">TRANSFORM_GH_TO_UV</span>
+<span class="n">recovered_sigma</span> <span class="o">=</span> <span class="n">k_poly</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">TRANSFORM_GH_TO_UV</span><span class="p">)</span> <span class="o">*</span> <span class="n">S</span><span class="o">.</span><span class="n">v</span><span class="o">**</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">recovered_sigma</span><span class="o">.</span><span class="n">expand</span><span class="p">()</span> <span class="o">==</span> <span class="n">sigma</span><span class="o">.</span><span class="n">expand</span><span class="p">())</span>  <span class="c1"># True</span>
+
+<span class="c1"># The transformation constants capture the substitutions:</span>
+<span class="c1"># TRANSFORM_UV_TO_GH = {u: g*h, v: h}  # Forward: sigma -&gt; k</span>
+<span class="c1"># TRANSFORM_GH_TO_UV = {g: u/v, h: v}  # Reverse: k -&gt; sigma</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="chapter-4-the-fundamental-identity">
+<h2>Chapter 4: The Fundamental Identity<a class="headerlink" href="#chapter-4-the-fundamental-identity" title="Link to this heading"></a></h2>
+<section id="the-d-polynomial-and-cycle-constraints">
+<h3>The d Polynomial and Cycle Constraints<a class="headerlink" href="#the-d-polynomial-and-cycle-constraints" title="Link to this heading"></a></h3>
+<p>Cycle analysis reveals the fundamental constraint:</p>
+<div class="math">
+<p><img src="_images/math/fc97d8886d8421d46dd252eb2f778b99e581d624.png" alt="d_p(g,h) = h^{e_p} - g^{o_p}"/></p>
+</div><p>This <strong>d polynomial</strong> captures the algebraic essence of cycle behavior and maintains the bijection property: there’s a one-to-one correspondence between p-values and d polynomials.</p>
+</section>
+<section id="the-cycle-element-identity">
+<h3>The Cycle Element Identity<a class="headerlink" href="#the-cycle-element-identity" title="Link to this heading"></a></h3>
+<p>The central relationship governing all cycles:</p>
+<div class="math">
+<p><img src="_images/math/d82c95babd11b660746a7fb90bd2b44e3db4be21.png" alt="x_p(g,h) \cdot d_p(g,h) = a_p(g,h) \cdot k_p(g,h)"/></p>
+</div><p>where:</p>
+<ul class="simple">
+<li><p><strong>x</strong><sub>p</sub>(g,h): Encoding of p into the (gx+a, x/h) system</p></li>
+<li><p><strong>a</strong><sub>p</sub>(g,h): Amplitude factor - the value required to scale k<sub>p</sub> so that a<sub>p</sub> · k<sub>p</sub> is divisible by d<sub>p</sub></p></li>
+<li><p><strong>k</strong><sub>p</sub>(g,h): k polynomial for p-value</p></li>
+<li><p><strong>d</strong><sub>p</sub>(g,h): d polynomial for p-value</p></li>
+</ul>
+<p><strong>Mathematical Significance</strong>: This identity:</p>
+<ol class="arabic simple">
+<li><p>Connects individual cycle elements through polynomial relationships</p></li>
+<li><p>Provides necessary conditions for cycle existence</p></li>
+<li><p>Enables systematic cycle classification</p></li>
+</ol>
+<p><strong>Plumial Implementation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+<span class="n">d_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">()</span>      <span class="c1"># h**5 - g**2</span>
+<span class="n">k_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>      <span class="c1"># Symbolic k polynomial</span>
+<span class="n">a_poly</span><span class="p">,</span> <span class="n">x_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ax</span><span class="p">()</span>  <span class="c1"># Factor the relationship</span>
+
+<span class="c1"># Verify the identity: x·d = a·k</span>
+<span class="n">left</span> <span class="o">=</span> <span class="n">x_poly</span> <span class="o">*</span> <span class="n">d_poly</span>
+<span class="n">right</span> <span class="o">=</span> <span class="n">a_poly</span> <span class="o">*</span> <span class="n">k_poly</span>
+<span class="c1"># left == right (symbolically)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="chapter-5-cycle-theory">
+<h2>Chapter 5: Cycle Theory<a class="headerlink" href="#chapter-5-cycle-theory" title="Link to this heading"></a></h2>
+<section id="natural-and-reduced-cycles">
+<h3>Natural and Reduced Cycles<a class="headerlink" href="#natural-and-reduced-cycles" title="Link to this heading"></a></h3>
+<p>For any cycle, the identity x·d = a·k has two fundamental encodings:</p>
+<ol class="arabic simple">
+<li><p><strong>Natural Cycle</strong>: (gk+d, x/h) encoding - always exists for every natural number in any (g,h) system</p></li>
+<li><p><strong>Reduced Cycle</strong>: (gx+a, x/h) encoding - exists only when gcd(k,d) &gt; 1</p></li>
+</ol>
+<p>The cycle theory provides:</p>
+<ul class="simple">
+<li><p><strong>Universal Encoding</strong>: Every natural number has a natural cycle encoding in every (g,h) system</p></li>
+<li><p><strong>Conditional Reduction</strong>: Only some (g,h) systems admit reduced cycle encodings</p></li>
+<li><p><strong>Factor Dependence</strong>: Reduced cycles exist when k and d share integer factors in the particular (g,h) encoding</p></li>
+</ul>
+</section>
+<section id="cycle-factorization">
+<h3>Cycle Factorization<a class="headerlink" href="#cycle-factorization" title="Link to this heading"></a></h3>
+<p>If f<sub>p</sub> = gcd(k<sub>p</sub>, d<sub>p</sub>), then:</p>
+<div class="math">
+<p><img src="_images/math/5ca3e9e2dab0a322e3efb97e152946ca294dad2c.png" alt="a_p = \frac{d_p}{f_p}, \quad x_p = \frac{k_p}{f_p}"/></p>
+</div><p>This factorization:</p>
+<ul class="simple">
+<li><p><strong>Natural Cycle</strong>: Uses (gk+d, x/h) encoding with k<sub>p</sub> and d<sub>p</sub></p></li>
+<li><p><strong>Reduced Cycle</strong>: Uses (gx+a, x/h) encoding with factored x<sub>p</sub> and a<sub>p</sub></p></li>
+<li><p><strong>Collatz Connection</strong>: The core Collatz problem asks whether any p exists such that d<sub>p</sub> divides k<sub>p</sub> in the (3x+1, x/2) system</p></li>
+</ul>
+<p><strong>Plumial Implementation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+
+<span class="c1"># Natural cycle encoding: (gk+d, x/h)</span>
+<span class="n">k_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>      <span class="c1"># k polynomial for natural encoding</span>
+<span class="n">d_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">()</span>      <span class="c1"># d polynomial for natural encoding</span>
+
+<span class="c1"># Reduced cycle encoding: (gx+a, x/h) - only if gcd(k,d) &gt; 1</span>
+<span class="n">f_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">f</span><span class="p">()</span>      <span class="c1"># GCD factor: gcd(k,d)</span>
+<span class="k">if</span> <span class="n">f_poly</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>     <span class="c1"># Reduced encoding exists</span>
+    <span class="n">a_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">a</span><span class="p">()</span>  <span class="c1"># a = d/f for reduced encoding</span>
+    <span class="n">x_poly</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>  <span class="c1"># x = k/f for reduced encoding</span>
+
+<span class="c1"># Verify fundamental identity: x·d = a·k</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a_poly</span> <span class="o">*</span> <span class="n">k_poly</span><span class="p">)</span>  <span class="c1"># Should equal x_poly * d_poly</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="chapter-6-advanced-topics">
+<h2>Chapter 6: Advanced Topics<a class="headerlink" href="#chapter-6-advanced-topics" title="Link to this heading"></a></h2>
+<section id="cyclotomic-connections">
+<h3>Cyclotomic Connections<a class="headerlink" href="#cyclotomic-connections" title="Link to this heading"></a></h3>
+<p>The d polynomial has deep connections to cyclotomic polynomials:</p>
+<div class="math">
+<p><img src="_images/math/65d32eee8ef830d4aa60d66596ccb98bf05a413e.png" alt="d_p(g,h) = \prod_{q|c} g^{o_p/c \cdot \varphi(q)} \cdot \Phi_q\left(\frac{h^{e_p/c}}{g^{o_p/c}}\right)"/></p>
+</div><p>where:</p>
+<ul class="simple">
+<li><p><strong>c = gcd(e</strong>:sub:<a href="#id1"><span class="problematic" id="id2">`</span></a>p`**, o**:sub:<a href="#id3"><span class="problematic" id="id4">`</span></a>p`**)**: Common divisor of bit counts</p></li>
+<li><p><strong>Φ</strong><sub>q</sub>**(x)**: qth cyclotomic polynomial</p></li>
+<li><p><strong>φ(q)</strong>: Euler totient function</p></li>
+</ul>
+<p>This factorization reveals connections to:</p>
+<ul class="simple">
+<li><p>Algebraic number theory</p></li>
+<li><p>Root systems and Galois theory</p></li>
+<li><p>Advanced polynomial factorization</p></li>
+</ul>
+</section>
+<section id="forced-vs-unforced-cycles">
+<h3>Forced vs Unforced Cycles<a class="headerlink" href="#forced-vs-unforced-cycles" title="Link to this heading"></a></h3>
+<p>A critical distinction for Collatz analysis:</p>
+<p><strong>Unforced Cycles</strong>: Next operation determined by x<sub>p</sub>-value LSB
+<strong>Forced Cycles</strong>: Next operation determined by p-value bit pattern</p>
+<div class="math">
+<p><img src="_images/math/c5c6e81036234fd41e098139bb9e957be9e4f981.png" alt="\text{Unforced} \iff \forall p \in \text{cycle}(p_0): x_p(3,2) \bmod 2 = p \bmod 2"/></p>
+</div><p><strong>Binary Characterization</strong>: Forced cycles arise if and only if there are adjacent 1’s in the binary representation of the p-value. This includes both standard adjacency within the path bits and the special case of adjacency between the highest and lowest path bits (wraparound adjacency in the cyclic ur-cycle structure).</p>
+<p><strong>Mathematical Significance</strong>: Any counterexample to Collatz would be unforced.</p>
+<p><strong>Plumial Implementation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">P</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">isforced</span><span class="p">()</span>    <span class="c1"># False (unforced)</span>
+<span class="n">P</span><span class="p">(</span><span class="mi">291</span><span class="p">)</span><span class="o">.</span><span class="n">isforced</span><span class="p">()</span>  <span class="c1"># True (forced)</span>
+
+<span class="c1"># Unforced condition check for cycle(9)</span>
+<span class="n">p9</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+<span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">p9</span><span class="o">.</span><span class="n">cycle</span><span class="p">())</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+</section>
+<section id="the-glitched-collatz-cycle-revealing-the-animation">
+<h3>The Glitched Collatz Cycle: Revealing the Animation<a class="headerlink" href="#the-glitched-collatz-cycle-revealing-the-animation" title="Link to this heading"></a></h3>
+<p><strong>The Mystery Revealed</strong>: Remember the hypnotic animation from Chapter 2? The p-value 281 was chosen for a deliciously cheeky reason - it represents a <strong>glitched Collatz cycle</strong> that challenges our understanding of the 3x+1 conjecture.</p>
+<a class="reference internal image-reference" href="_images/watch-animation.gif"><img alt="The glitched Collatz cycle p=281 visualized through complex roots of unity" class="align-center" src="_images/watch-animation.gif" style="width: 500px;" />
+</a>
+<p><em>Now you know what you’re really seeing:</em> σ<sub>281</sub>(u,v) = u² + uv² + v⁴ <em>evaluated with complex roots of unity.</em></p>
+<p><strong>The Complete Cycle</strong>: Here is the full enumeration of cycle(281):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>P(281) glitched Collatz cycle:
+  1. 281 = 100011001  (n=8, o=3, e=5)
+  2. 396 = 110001100
+  3. 326 = 101000110
+  4. 291 = 100100011
+  5. 401 = 110010001
+  6. 456 = 111001000
+  7. 356 = 101100100
+  8. 306 = 100110010
+</pre></div>
+</div>
+<p><strong>Why “Glitched”</strong>: This 8-element cycle exists in the (3x+1, x/2) system, yet according to the standard Collatz conjecture, all positive integers should eventually reach the trivial cycle 1→4→2→1. The apparent paradox is explained by the fact that p=281 is an example of a forced cycle, something not permitted by the standard framing of the Collatz conjecture. Forced cycles arise if and only if there are adjacent 1’s in the binary representation of the p-value, considering both standard adjacency and the special case of adjacency between the high and low path bits (wraparound adjacency in the cyclic structure).</p>
+<p><strong>The Animation Technique</strong>: The mesmerizing visualization results from:</p>
+<ol class="arabic">
+<li><p><strong>Complex Roots of Unity</strong>: For p=281 with o<sub>p</sub> = 3 and n<sub>p</sub> = 8, we substitute:</p>
+<ul class="simple">
+<li><p>u = e^(2πit/3) = cos(2πt/3) + i·sin(2πt/3)  [3rd roots of unity]</p></li>
+<li><p>v = e^(2πis/8) = cos(πs/4) + i·sin(πs/4)    [8th roots of unity]</p></li>
+</ul>
+<p>where t and s are interpolated smoothly from 0 to their respective periods.</p>
+</li>
+<li><p><strong>Polynomial Evaluation</strong>: Computing σ<sub>281</sub>\(u,v) = u² + uv² + v⁴ in the complex plane</p></li>
+<li><p><strong>Smooth Interpolation</strong>: Creating continuous transitions as t ∈ [0,3) and s ∈ [0,8) cycle</p></li>
+<li><p><strong>Geometric Patterns</strong>: Each term (u², uv², v⁴) traces its own trajectory, and their sum creates the final hypnotic pattern</p></li>
+</ol>
+<p><strong>Mathematical Beauty</strong>: The animation reveals how discrete binary patterns (the cycle’s bit structures) transform into continuous geometric flows when viewed through the lens of complex analysis. Each point’s trajectory reflects the polynomial’s mathematical relationships, creating predictable yet hypnotic patterns.</p>
+<p><strong>Verification in Plumial</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Explore the glitched cycle</span>
+<span class="n">p281</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">281</span><span class="p">)</span>
+<span class="n">cycle</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p281</span><span class="o">.</span><span class="n">cycle</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cycle length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sigma polynomial: </span><span class="si">{</span><span class="n">p281</span><span class="o">.</span><span class="n">uv</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># u**2 + u*v**2 + v**4</span>
+
+<span class="c1"># Verify it&#39;s truly a cycle in (3,2) system</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">()</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">: forced=</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">isforced</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="chapter-7-implementation-in-plumial">
+<h2>Chapter 7: Implementation in Plumial<a class="headerlink" href="#chapter-7-implementation-in-plumial" title="Link to this heading"></a></h2>
+<section id="design-philosophy">
+<h3>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h3>
+<p>Plumial implements this mathematical framework through:</p>
+<ol class="arabic simple">
+<li><p><strong>Path Objects (P)</strong>: Hydrated p-values with polynomial methods</p></li>
+<li><p><strong>D Objects</strong>: Direct access to d polynomial operations</p></li>
+<li><p><strong>Symbolic Integration</strong>: Full SymPy compatibility for mathematical exploration</p></li>
+<li><p><strong>Functional Interface</strong>: Elegant operations through F namespace</p></li>
+</ol>
+</section>
+<section id="code-architecture">
+<h3>Code Architecture<a class="headerlink" href="#code-architecture" title="Link to this heading"></a></h3>
+<p>The library structure mirrors the mathematical hierarchy:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Foundation: Path objects encode p-values</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>  <span class="c1"># or P(&#39;10000101&#39;) from binary string</span>
+
+<span class="c1"># Layer 1: Binary analysis</span>
+<span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">e</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">b</span><span class="p">()</span>
+
+<span class="c1"># Layer 2: u,v polynomials</span>
+<span class="n">p</span><span class="o">.</span><span class="n">uv</span><span class="p">()</span>
+
+<span class="c1"># Layer 3: k polynomials</span>
+<span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">Collatz</span><span class="p">)</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+
+<span class="c1"># Layer 4: d polynomials and identities</span>
+<span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">ax</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">f</span><span class="p">()</span>
+
+<span class="c1"># Layer 5: p-cycle analysis</span>
+<span class="n">p</span><span class="o">.</span><span class="n">cycle</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">isforced</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="mathematical-validation">
+<h3>Mathematical Validation<a class="headerlink" href="#mathematical-validation" title="Link to this heading"></a></h3>
+<p>Every implementation preserves the theoretical relationships:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sympy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sy</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+
+<span class="c1"># Verify fundamental identity</span>
+<span class="n">a</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ax</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">sy</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">())</span> <span class="o">==</span> <span class="n">sy</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">())</span>
+
+<span class="c1"># Verify UV→GH transformation</span>
+<span class="n">uv</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">uv</span><span class="p">()</span>
+<span class="n">gh</span> <span class="o">=</span> <span class="n">uv</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">S</span><span class="o">.</span><span class="n">u</span><span class="p">:</span> <span class="n">S</span><span class="o">.</span><span class="n">g</span><span class="o">*</span><span class="n">S</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">v</span><span class="p">:</span> <span class="n">S</span><span class="o">.</span><span class="n">h</span><span class="p">})</span>
+<span class="n">k_derived</span> <span class="o">=</span> <span class="p">(</span><span class="n">gh</span> <span class="o">/</span> <span class="n">S</span><span class="o">.</span><span class="n">h</span><span class="o">**</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">k_derived</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="conclusion-mathematical-power-through-abstraction">
+<h2>Conclusion: Mathematical Power Through Abstraction<a class="headerlink" href="#conclusion-mathematical-power-through-abstraction" title="Link to this heading"></a></h2>
+<p>The polynomial framework transforms Collatz analysis from:</p>
+<ul class="simple">
+<li><p><strong>Computational</strong>: Iterating sequences → <strong>Algebraic</strong>: Solving polynomial equations</p></li>
+<li><p><strong>Case-by-case</strong>: Individual trajectories → <strong>Systematic</strong>: Polynomial families</p></li>
+<li><p><strong>Numerical</strong>: Specific values → <strong>Symbolic</strong>: General relationships</p></li>
+<li><p><strong>Elementary</strong>: Arithmetic operations → <strong>Advanced</strong>: Cyclotomic theory</p></li>
+</ul>
+<p>This abstraction reveals deep mathematical structures while maintaining computational accessibility through Plumial’s clean API. The result is a powerful framework for systematic Collatz analysis that connects elementary number theory to advanced algebraic geometry. The core insight is that the Collatz conjecture reduces to asking whether any p-value exists such that d<sub>p</sub> divides k<sub>p</sub> in the (3x+1, x/2) system - a question that can now be approached through rigorous polynomial analysis.</p>
+<p><strong>Further Reading</strong>:</p>
+<ul class="simple">
+<li><p>Paper 14: “Exploring Cyclic Structures in Polynomial Rings with Applications to the Collatz Conjecture”</p></li>
+<li><p>Plumial Examples Notebook: Interactive demonstrations of all concepts</p></li>
+<li><p>API Reference: Complete documentation of polynomial methods and transformations</p></li>
+</ul>
+<p>The mathematical foundations presented here provide the theoretical basis for all Plumial operations, ensuring that computational exploration is grounded in rigorous mathematical theory.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api_reference.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

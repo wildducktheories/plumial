@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plumial.core.basis &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plumial.core.basis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plumial.core.basis</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Basis and coordinate system objects for Plumial mathematical operations.</span>
+
+<span class="sd">This module provides the foundation for encoding mathematical objects within</span>
+<span class="sd">specific coordinate systems (bases) defined by (g,h) parameters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sympy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.symbolic</span><span class="w"> </span><span class="kn">import</span> <span class="n">S</span>
+
+
+<div class="viewcode-block" id="Basis">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Basis</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a mathematical coordinate system defined by (g,h) parameters.</span>
+<span class="sd">    </span>
+<span class="sd">    A basis provides both semantic access methods (odd/even path parameters)</span>
+<span class="sd">    and concrete access methods (g/h parameters) for different contexts.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; # Create bases</span>
+<span class="sd">        &gt;&gt;&gt; symbolic_basis = Basis(S.g, S.h)</span>
+<span class="sd">        &gt;&gt;&gt; collatz_basis = Basis(3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Semantic access</span>
+<span class="sd">        &gt;&gt;&gt; collatz_basis.odd()    # Returns 3 (odd-path parameter)</span>
+<span class="sd">        &gt;&gt;&gt; collatz_basis.even()   # Returns 2 (even-path parameter)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Concrete access</span>
+<span class="sd">        &gt;&gt;&gt; collatz_basis.g()      # Returns 3 (g parameter)</span>
+<span class="sd">        &gt;&gt;&gt; collatz_basis.h()      # Returns 2 (h parameter)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Modern encoding approach</span>
+<span class="sd">        &gt;&gt;&gt; P(281).encode(collatz_basis).k()   # Encode then evaluate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="Basis.__init__">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a basis with (g,h) parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            g: The g parameter (odd-path parameter)</span>
+<span class="sd">            h: The h parameter (even-path parameter)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_g</span> <span class="o">=</span> <span class="n">g</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_h</span> <span class="o">=</span> <span class="n">h</span></div>
+
+    
+<div class="viewcode-block" id="Basis.odd">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.odd">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">odd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the odd-path parameter (g).</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides semantic access to the parameter that governs</span>
+<span class="sd">        transformations when odd bits are encountered in path polynomials.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The g parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span></div>
+
+    
+<div class="viewcode-block" id="Basis.even">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.even">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">even</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the even-path parameter (h).</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides semantic access to the parameter that governs</span>
+<span class="sd">        transformations when even bits are encountered in path polynomials.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The h parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span></div>
+
+    
+<div class="viewcode-block" id="Basis.g">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.g">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the g parameter (alias for odd()).</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides concrete access to the g parameter for</span>
+<span class="sd">        contexts where the traditional g,h notation is preferred.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The g parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span></div>
+
+    
+<div class="viewcode-block" id="Basis.h">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.h">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the h parameter (alias for even()).</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides concrete access to the h parameter for</span>
+<span class="sd">        contexts where the traditional g,h notation is preferred.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The h parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span></div>
+
+    
+<div class="viewcode-block" id="Basis.is_concrete">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.is_concrete">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_concrete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return true if the basis has concrete (numeric) axes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the axes are both numeric, false otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sy</span><span class="o">.</span><span class="n">sympify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">)</span><span class="o">.</span><span class="n">is_integer</span> <span class="ow">and</span> <span class="n">sy</span><span class="o">.</span><span class="n">sympify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">)</span><span class="o">.</span><span class="n">is_integer</span></div>
+
+
+<div class="viewcode-block" id="Basis.tuple">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.tuple">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return (g, h) tuple for positional unpacking.</span>
+<span class="sd">        </span>
+<span class="sd">        This enables usage like: method(*basis.tuple())</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (g, h) parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="Basis.dict">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return {&#39;g&#39;: g, &#39;h&#39;: h} dict for keyword unpacking.</span>
+<span class="sd">        </span>
+<span class="sd">        This enables usage like: method(**basis.dict())</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with &#39;g&#39; and &#39;h&#39; keys</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">}</span></div>
+
+    
+<div class="viewcode-block" id="Basis.sym_dict">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.Basis.sym_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sym_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return {g_sym: g, h_sym: h} dict for symbolic substitution.</span>
+<span class="sd">        </span>
+<span class="sd">        This enables usage like: expression.subs(basis.sym_dict())</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary mapping symbolic variables to basis values</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; from plumial.utils.symbolic import g, h</span>
+<span class="sd">            &gt;&gt;&gt; basis = B.Collatz</span>
+<span class="sd">            &gt;&gt;&gt; expr = g**2 + h**3</span>
+<span class="sd">            &gt;&gt;&gt; result = expr.subs(basis.sym_dict())  # Evaluates with g=3, h=2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..utils.symbolic</span><span class="w"> </span><span class="kn">import</span> <span class="n">g</span> <span class="k">as</span> <span class="n">g_sym</span><span class="p">,</span> <span class="n">h</span> <span class="k">as</span> <span class="n">h_sym</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">g_sym</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="n">h_sym</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">}</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check equality with another basis.</span>
+<span class="sd">        </span>
+<span class="sd">        Two bases are equal if they have the same g and h parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            other: Object to compare with</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if bases are equal, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Basis</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_g</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_h</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return hash of the basis for use in sets and dicts.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Hash based on (g, h) parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">))</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return string representation of the basis.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            String representation showing g and h parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Basis(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="si">}</span><span class="s2">)&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return human-readable string representation.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            String representation for display</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Basis(g=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="si">}</span><span class="s2">, h=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="B">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.B">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">B</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Namespace for predefined basis constants.</span>
+<span class="sd">    </span>
+<span class="sd">    This provides convenient access to commonly used mathematical bases</span>
+<span class="sd">    for Collatz-like sequences and polynomial operations.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; # Use predefined bases</span>
+<span class="sd">        &gt;&gt;&gt; P(281).encode(B.Collatz).k()</span>
+<span class="sd">        &gt;&gt;&gt; P(281).encode(B.Symbolic).k()</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Create custom basis</span>
+<span class="sd">        &gt;&gt;&gt; custom = Basis(5, 2)</span>
+<span class="sd">        &gt;&gt;&gt; P(281).encode(custom).k()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">Symbolic</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="n">S</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Symbolic basis using symbolic g,h variables&quot;&quot;&quot;</span>
+    
+    <span class="n">Collatz</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard Collatz basis (3x+1, /2)&quot;&quot;&quot;</span>
+    
+    <span class="n">Collatz_5_2</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;5x+1 Collatz variant basis&quot;&quot;&quot;</span>
+    
+    <span class="n">Collatz_7_2</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;7x+1 Collatz variant basis&quot;&quot;&quot;</span>
+    
+    <span class="n">Collatz_5_4</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;5x+1, /4 Collatz variant basis&quot;&quot;&quot;</span>
+    
+    <span class="n">Collatz_7_4</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;7x+1, /4 Collatz variant basis&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_basis">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.core.resolve_basis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_basis</span><span class="p">(</span><span class="n">basis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Basis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">g</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">h</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Basis</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve basis from various parameter combinations.</span>
+<span class="sd">    </span>
+<span class="sd">    This utility function handles the different ways a basis can be specified</span>
+<span class="sd">    and returns a consistent Basis object.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        basis: Explicit Basis object</span>
+<span class="sd">        g: g parameter for custom basis</span>
+<span class="sd">        h: h parameter for custom basis</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Resolved Basis object</span>
+<span class="sd">        </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If parameters are inconsistent or incomplete</span>
+<span class="sd">        </span>
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; resolve_basis(B.Collatz)           # Use existing basis</span>
+<span class="sd">        &gt;&gt;&gt; resolve_basis(g=3, h=2)           # Create from parameters</span>
+<span class="sd">        &gt;&gt;&gt; resolve_basis()                   # Returns symbolic basis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">g</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify both basis and g/h parameters&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">basis</span>
+    
+    <span class="k">if</span> <span class="n">g</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Basis</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">g</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify both g and h parameters&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Default to symbolic basis</span>
+    <span class="k">return</span> <span class="n">B</span><span class="o">.</span><span class="n">Symbolic</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,521 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plumial.utils.functions &mdash; Plumial 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Plumial
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mathematical_foundations.html">Mathematical Foundations of Plumial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Plumial</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plumial.utils.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plumial.utils.functions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions module for functional programming with P-objects.</span>
+
+<span class="sd">This module provides a comprehensive set of functional utilities for working with</span>
+<span class="sd">P-class objects in Collatz analysis. It enables elegant, composable operations</span>
+<span class="sd">through curried functions, filters, and data transformations.</span>
+
+<span class="sd">The module follows functional programming principles to enable clean code like:</span>
+<span class="sd">    P(p).cycle(filter=F.isodd, map=F.k(3,2))</span>
+
+<span class="sd">Usage Patterns:</span>
+<span class="sd">    &gt;&gt;&gt; from plumial.utils import F</span>
+<span class="sd">    &gt;&gt;&gt; # Simple getters</span>
+<span class="sd">    &gt;&gt;&gt; F.n(p_obj)  # Get bit count</span>
+<span class="sd">    &gt;&gt;&gt; F.d(p_obj)  # Get d-polynomial</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Curried functions</span>
+<span class="sd">    &gt;&gt;&gt; k_func = F.k()  # Returns lambda p: p.k()</span>
+<span class="sd">    &gt;&gt;&gt; values = [k_func(p) for p in cycle]</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Filters</span>
+<span class="sd">    &gt;&gt;&gt; odd_elements = [p for p in cycle if F.isodd(p)]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Import type aliases for better type safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..types</span><span class="w"> </span><span class="kn">import</span> <span class="n">NumericType</span><span class="p">,</span> <span class="n">OptionalNumeric</span><span class="p">,</span> <span class="n">PValueProtocol</span>
+
+
+<span class="c1"># Simple getter functions</span>
+<div class="viewcode-block" id="as_expr">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.as_expr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_expr</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract expression representation from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">()</span>  <span class="c1"># Return d-polynomial expression</span></div>
+
+
+
+<div class="viewcode-block" id="as_poly">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.as_poly">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_poly</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract polynomial representation from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">()</span>  <span class="c1"># Return d-polynomial</span></div>
+
+
+
+<div class="viewcode-block" id="b">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.b">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">b</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract binary string representation from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">b</span><span class="p">(</span><span class="n">width</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="d">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.d">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract d-polynomial from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="e">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.e">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">e</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract even bit count from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">e</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="isodd">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.isodd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">isodd</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if p-value is odd.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="ismin">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.ismin">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ismin</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if p-value is minimal in its cycle.&quot;&quot;&quot;</span>
+    <span class="c1"># Find minimum in cycle</span>
+    <span class="n">cycle_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">p</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">cycle</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">()</span> <span class="o">==</span> <span class="nb">min</span><span class="p">(</span><span class="n">cycle_values</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="isforced">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.isforced">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">isforced</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the cycle is forced by the p-value bit pattern.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">isforced</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="n">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.n">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract total bit count from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="o">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.o">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">o</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract odd bit count from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="p">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.p">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">p</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract p-value from P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># Curried getter functions</span>
+<div class="viewcode-block" id="a">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.a">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">a</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PValueProtocol</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return curried function for a-value extraction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Lambda function that extracts a-value from P-object</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; a_func = F.a()</span>
+<span class="sd">        &gt;&gt;&gt; result = a_func(p_obj)  # Equivalent to p_obj.a()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">p_obj</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">a</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="f">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.f">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PValueProtocol</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return curried function for f-value extraction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Lambda function that extracts f-value from P-object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">p_obj</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">f</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="k">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.k">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">k</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PValueProtocol</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return curried function for k-value extraction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Lambda function that extracts k-value from P-object</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; k_func = F.k()</span>
+<span class="sd">        &gt;&gt;&gt; values = [k_func(p) for p in cycle]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">p_obj</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">k</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="x">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.x">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PValueProtocol</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return curried function for x-value extraction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Lambda function that extracts x-value from P-object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">p_obj</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">x</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># Boolean filter functions</span>
+<div class="viewcode-block" id="isfalse">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.isfalse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">isfalse</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Always return False - useful as a filter.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="istrue">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.istrue">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">istrue</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Always return True - useful as a filter.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="isnot">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.isnot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">isnot</span><span class="p">(</span>
+    <span class="n">filter_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PValueProtocol</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PValueProtocol</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return inverted filter function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filter_func: Original filter function</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Inverted filter function</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; not_odd = F.isnot(F.isodd)</span>
+<span class="sd">        &gt;&gt;&gt; even_elements = [p for p in cycle if not_odd(p)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">p_obj</span><span class="p">:</span> <span class="ow">not</span> <span class="n">filter_func</span><span class="p">(</span><span class="n">p_obj</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Identity functions</span>
+<div class="viewcode-block" id="identity_map">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.identity_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identity_map</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PValueProtocol</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identity mapping function - returns input unchanged.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span></div>
+
+
+
+<div class="viewcode-block" id="identity_reducer">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.identity_reducer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identity_reducer</span><span class="p">(</span><span class="n">acc</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identity reducer function - returns accumulator unchanged.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">acc</span></div>
+
+
+
+<span class="c1"># Cycle navigation functions</span>
+<div class="viewcode-block" id="next">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.next">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PValueProtocol</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get next element in cycle.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">next</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="pred">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.pred">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pred</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PValueProtocol</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get predecessor element in cycle.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">pred</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># Data conversion functions</span>
+<div class="viewcode-block" id="to_object">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.to_object">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_object</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert P-object to dictionary representation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        p: P-object to convert</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary with p-object properties</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; obj_dict = F.to_object(p_obj)</span>
+<span class="sd">        &gt;&gt;&gt; print(obj_dict)  # {&#39;p&#39;: 133, &#39;n&#39;: 7, &#39;o&#39;: 2, &#39;e&#39;: 5, ...}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">p</span><span class="p">(),</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">(),</span>
+        <span class="s2">&quot;o&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">o</span><span class="p">(),</span>
+        <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">e</span><span class="p">(),</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="to_dataframe">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.to_dataframe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_dataframe</span><span class="p">(</span>
+    <span class="n">iterator</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">PValueProtocol</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert iterator of P-objects to pandas DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        iterator: Iterator yielding P-objects</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Pandas DataFrame with P-object data</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; df = F.to_dataframe(P(133).cycle())</span>
+<span class="sd">        &gt;&gt;&gt; print(df.head())</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p_obj</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">p</span><span class="p">(),</span>
+            <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">n</span><span class="p">(),</span>
+            <span class="s2">&quot;o&quot;</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">o</span><span class="p">(),</span>
+            <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">e</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add evaluated polynomials</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">d</span><span class="p">()</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">k</span><span class="p">()</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">f</span><span class="p">()</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">a</span><span class="p">()</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_obj</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Handle cases where evaluation might fail</span>
+            <span class="k">pass</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Additional utility functions for Collatz analysis</span>
+<div class="viewcode-block" id="cycle_length">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.cycle_length">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cycle_length</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the length of the cycle containing this P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">n</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="cycle_min">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.cycle_min">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cycle_min</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the minimum p-value in the cycle containing this P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">p</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">cycle</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="cycle_max">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.cycle_max">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cycle_max</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the maximum p-value in the cycle containing this P-object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">p</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">cycle</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="is_cycle_start">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.is_cycle_start">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_cycle_start</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PValueProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if this P-object represents the start of its cycle (minimum p-value).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ismin</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Functional composition utilities</span>
+<div class="viewcode-block" id="compose">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.compose">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="o">*</span><span class="n">functions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compose multiple functions into a single function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *functions: Functions to compose (applied right to left)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Composed function</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; composed = F.compose(F.n, F.next_func)</span>
+<span class="sd">        &gt;&gt;&gt; result = composed(p_obj)  # n(next_func(p_obj))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">composed_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">functions</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">composed_function</span></div>
+
+
+
+<div class="viewcode-block" id="map_filter">
+<a class="viewcode-back" href="../../../api_reference.html#plumial.utils.functions.map_filter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">map_filter</span><span class="p">(</span><span class="n">map_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filter_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a combined map-filter function for cycle processing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        map_func: Function to apply to each element</span>
+<span class="sd">        filter_func: Function to filter elements</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Combined function for use in cycle operations</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; mf = F.map_filter(F.k(), F.isodd)</span>
+<span class="sd">        &gt;&gt;&gt; # Use with P(p).cycle() method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">map_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">map_func</span> <span class="o">=</span> <span class="n">identity_map</span>
+    <span class="k">if</span> <span class="n">filter_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filter_func</span> <span class="o">=</span> <span class="n">istrue</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">combined</span><span class="p">(</span><span class="n">iterator</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filter_func</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">map_func</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">combined</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, plumial.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
