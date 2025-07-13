@@ -1,0 +1,35 @@
+﻿plumial.core.D.\_D
+==================
+
+.. currentmodule:: plumial.core.D
+
+.. autoclass:: _D
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   
+   
+   .. autosummary::
+      :toctree: .
+   
+      _D.__init__
+      _D.as_expr
+      _D.basis
+      _D.d
+      _D.e
+      _D.encode
+      _D.expand
+      _D.factor
+      _D.g_vector
+      _D.gcd
+      _D.n
+      _D.o
+      _D.q
+      _D.r
+   
+   
+
+   
+   
+   
