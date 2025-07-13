@@ -66,14 +66,12 @@ print(p.d())    # h**5 - g**2 (d-polynomial)
 print(p.k())    # k polynomial (symbolic)
 print(p.uv())   # UV polynomial representation
 
-# Evaluate numerically - modern basis approach
-print(p.encode(B.Collatz).d())              # Modern: 23
-
-# Legacy approach still works
-print(p.d(g=3, h=2))                        # Legacy: 23
+# Evaluate numerically using basis encoding
+print(p.encode(B.Collatz).d())              # Evaluates with g=3, h=2: 23
 
 # Cycle operations with functional style
-odd_k_values = list(P(293).cycle(map=F.k(), filter=F.isodd))
+collatz_p293 = P(293).encode(B.Collatz)
+odd_k_values = list(collatz_p293.cycle(map=F.k(), filter=F.isodd))
 
 # Binary string constructor
 assert P(133) == P("10000101")               # Equivalent results

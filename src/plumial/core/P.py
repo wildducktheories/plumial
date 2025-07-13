@@ -22,7 +22,8 @@ Examples:
     >>> p = P(133)  # Create polynomial for p-value 133
     >>> print(p.n(), p.o(), p.e())  # Bit counts: n=7, o=2, e=5
     >>> uv_poly = p.uv()  # Get UV polynomial representation
-    >>> k_val = p.k(g=3, h=2)  # Evaluate k polynomial at g=3, h=2
+    >>> collatz_p = p.encode(g=3, h=2)  # Encode for Collatz evaluation
+    >>> k_val = collatz_p.k()  # Evaluate k polynomial
 """
 
 import math

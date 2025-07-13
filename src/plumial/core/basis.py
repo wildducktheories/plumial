@@ -30,9 +30,8 @@ class Basis:
         >>> collatz_basis.g()      # Returns 3 (g parameter)
         >>> collatz_basis.h()      # Returns 2 (h parameter)
         >>> 
-        >>> # Unpacking for legacy methods
-        >>> P(281).k(*collatz_basis.tuple())   # k(3, 2)
-        >>> P(281).k(**collatz_basis.dict())   # k(g=3, h=2)
+        >>> # Modern encoding approach
+        >>> P(281).encode(collatz_basis).k()   # Encode then evaluate
     """
     
     def __init__(self, g: Any, h: Any):

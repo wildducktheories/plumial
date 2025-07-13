@@ -27,7 +27,8 @@ Examples:
     >>> d = D(133)  # Create from p-value 133
     >>> print(d.n(), d.o(), d.e())  # 7, 2, 5
     >>> poly = d.d()  # Get symbolic form: h^5 - g^2
-    >>> result = d.d(g=3, h=2)  # Evaluate: 2^5 - 3^2 = 32 - 9 = 23
+    >>> collatz_d = d.encode(g=3, h=2)  # Encode for Collatz evaluation
+    >>> result = collatz_d.d()  # Evaluate: 2^5 - 3^2 = 32 - 9 = 23
 """
 
 import math
