@@ -117,6 +117,70 @@ class _D:
         """Return the basis of this encoding."""
         return self._basis
 
+    def c(self) -> NumericOrSymbolic:
+        """
+        Calculate the ceiling of log_h(g).
+        
+        This method computes ceil(log_h(g)) where log_h(g) is the logarithm
+        of g with base h. The result represents an important mathematical bound
+        related to the d-polynomial structure.
+        
+        Returns:
+            Ceiling value, either symbolic or evaluated based on the basis
+            
+        Mathematical Formula:
+            c = ceil(log_h(g)) = ceil(log(g) / log(h))
+            
+        Examples:
+            >>> d = D(133)
+            >>> d.c()  # Symbolic form
+            >>> collatz_d = D(133).encode(B.Collatz)
+            >>> collatz_d.c()  # Numerical evaluation for g=3, h=2
+        """
+        # Get basis parameters
+        basis_dict = self._basis.dict()
+        g_val = basis_dict.get('g')
+        h_val = basis_dict.get('h')
+        
+        if self._basis == B.Symbolic or g_val is None or h_val is None:
+            # Return symbolic form
+            return sy.ceiling(sy.log(g_sym, h_sym))
+        else:
+            # Return numerical evaluation
+            if g_val <= 0 or h_val <= 0 or h_val == 1:
+                raise ValueError(f"Invalid basis values for logarithm: g={g_val}, h={h_val}")
+            
+            log_val = math.log(g_val) / math.log(h_val)
+            return math.ceil(log_val)
+
+    def r(self) -> NumericOrSymbolic:
+        """
+        Calculate the remainder: c() * o() - e().
+        
+        This method computes the remainder value defined as the ceiling of log_h(g)
+        times the number of odd bits minus the number of even bits.
+        
+        Returns:
+            Remainder value, either symbolic or evaluated based on the basis
+            
+        Mathematical Formula:
+            r = c * o - e = ceil(log_h(g)) * o - e
+            
+        Examples:
+            >>> d = D(133)  # o=2, e=5
+            >>> d.r()  # Symbolic form
+            >>> collatz_d = D(133).encode(B.Collatz)
+            >>> collatz_d.r()  # Numerical evaluation: 2 * 2 - 5 = -1
+        """
+        c_val = self.c()
+        
+        if self._basis == B.Symbolic:
+            # Return symbolic form
+            return c_val * self._o - self._e
+        else:
+            # Return numerical evaluation
+            return c_val * self._o - self._e
+
     def encode(
         self, 
         basis: Optional[Basis] = None, 

@@ -129,6 +129,28 @@ class _P:
         """Return the number of even bits."""
         return self.n() - self.o()
 
+    def c(self) -> Union[sy.Expr, int, float]:
+        """
+        Calculate the ceiling of log_h(g).
+        
+        Delegates to the D object's c() method.
+        
+        Returns:
+            Ceiling value, either symbolic or evaluated based on the basis
+        """
+        return self._d.c()
+
+    def r(self) -> Union[sy.Expr, int, float]:
+        """
+        Calculate the remainder: c() * o() - e().
+        
+        Delegates to the D object's r() method.
+        
+        Returns:
+            Remainder value, either symbolic or evaluated based on the basis
+        """
+        return self._d.r()
+
     def basis(self) -> Basis:
         """Return the basis of this encoding."""
         return self._basis

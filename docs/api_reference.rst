@@ -49,6 +49,8 @@ The ``P()`` function returns a path object with the following methods:
    generated/plumial.core.P._P.n
    generated/plumial.core.P._P.o
    generated/plumial.core.P._P.e
+   generated/plumial.core.P._P.c
+   generated/plumial.core.P._P.r
    generated/plumial.core.P._P.basis
    generated/plumial.core.P._P.isforced
    generated/plumial.core.P._P.b
@@ -72,6 +74,8 @@ The ``P()`` function returns a path object with the following methods:
    plumial.core.P._P.n
    plumial.core.P._P.o
    plumial.core.P._P.e
+   plumial.core.P._P.c
+   plumial.core.P._P.r
    plumial.core.P._P.basis
    plumial.core.P._P.isforced
    plumial.core.P._P.b
@@ -79,7 +83,7 @@ The ``P()`` function returns a path object with the following methods:
    plumial.core.P._P.D
 
 .. autoclass:: plumial.core.P._P
-   :members: d, k, a, x, f, encode, cycle, uv, next, pred, p, n, o, e, basis, isforced, b, ax, D
+   :members: d, k, a, x, f, encode, cycle, uv, next, pred, p, n, o, e, c, r, basis, isforced, b, ax, D
    :undoc-members:
    :show-inheritance:
 
@@ -108,6 +112,8 @@ The ``D()`` function returns a d-polynomial object with the following methods:
    generated/plumial.core.D._D.d
    generated/plumial.core.D._D.encode
    generated/plumial.core.D._D.as_expr
+   generated/plumial.core.D._D.c
+   generated/plumial.core.D._D.r
    generated/plumial.core.D._D.n
    generated/plumial.core.D._D.o
    generated/plumial.core.D._D.e
@@ -119,13 +125,15 @@ The ``D()`` function returns a d-polynomial object with the following methods:
    plumial.core.D._D.d
    plumial.core.D._D.encode
    plumial.core.D._D.as_expr
+   plumial.core.D._D.c
+   plumial.core.D._D.r
    plumial.core.D._D.n
    plumial.core.D._D.o
    plumial.core.D._D.e
    plumial.core.D._D.basis
 
 .. autoclass:: plumial.core.D._D
-   :members: d, encode, as_expr, n, o, e, basis
+   :members: d, encode, as_expr, c, r, n, o, e, basis
    :undoc-members:
    :show-inheritance:
 
