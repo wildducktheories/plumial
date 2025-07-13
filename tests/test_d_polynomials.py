@@ -44,15 +44,8 @@ def test_d_evaluation():
     symbolic = d.d()
     assert symbolic == h**2 - g**2
 
-    # Partial evaluation
-    g_only = d.d(g=3)
-    assert g_only == h**2 - 9
-
-    h_only = d.d(h=2)
-    assert h_only == 4 - g**2
-
-    # Full evaluation
-    numeric = d.d(g=3, h=2)
+    # Full evaluation using modern encoding
+    numeric = d.encode(g=3, h=2).d()
     assert numeric == 4 - 9  # -5
 
 
@@ -171,4 +164,4 @@ def test_d_integration_with_p():
 
     # Test polynomial evaluation through P
     assert p.d() == d.as_expr()
-    assert p.d(g=3, h=2) == d.d(g=3, h=2)
+    assert p.encode(g=3, h=2).d() == d.encode(g=3, h=2).d()

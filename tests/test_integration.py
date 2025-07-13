@@ -31,8 +31,8 @@ def test_p_d_integration():
     assert d_obj.e() == d_direct.e()
 
     # Their polynomial evaluations should match
-    assert p_obj.d(g=3, h=2) == d_obj.d(g=3, h=2)
-    assert p_obj.d(g=3, h=2) == d_direct.d(g=3, h=2)
+    assert p_obj.encode(g=3, h=2).d() == d_obj.encode(g=3, h=2).d()
+    assert p_obj.encode(g=3, h=2).d() == d_direct.encode(g=3, h=2).d()
 
     print(f"P({p_val}) and D({p_val}) integration successful")
 
@@ -51,7 +51,7 @@ def test_cycle_polynomial_consistency():
     # Test that d-polynomials are related
     d_values = []
     for obj in cycle_objects:
-        d_val = obj.d(g=3, h=2)
+        d_val = obj.encode(g=3, h=2).d()
         d_values.append(d_val)
 
     print(f"Cycle d-values: {d_values}")
@@ -59,7 +59,7 @@ def test_cycle_polynomial_consistency():
     # Test that k polynomials vary across cycle
     k_values = []
     for obj in cycle_objects:
-        k_val = obj.k(g=3, h=2)
+        k_val = obj.encode(g=3, h=2).k()
         k_values.append(k_val)
 
     print(f"Cycle k-values: {k_values}")
@@ -72,11 +72,12 @@ def test_mathematical_relationships_across_cycle():
     for obj in p_obj.cycle():
         try:
             # Test relationships for each object in cycle
-            d_val = obj.d(g=3, h=2)
-            k_val = obj.k(g=3, h=2)
-            f_val = obj.f(g=3, h=2)
-            a_val = obj.a(g=3, h=2)
-            x_val = obj.x(g=3, h=2)
+            encoded_obj = obj.encode(g=3, h=2)
+            d_val = encoded_obj.d()
+            k_val = encoded_obj.k()
+            f_val = encoded_obj.f()
+            a_val = encoded_obj.a()
+            x_val = encoded_obj.x()
 
             # Test mathematical relationships
             assert abs(a_val - d_val / f_val) < 1e-10
@@ -123,7 +124,7 @@ def test_d_integration():
     assert d_obj.e() == 2
 
     # Test that we can evaluate it
-    d_val = d_obj.d(g=3, h=2)
+    d_val = d_obj.encode(g=3, h=2).d()
     assert isinstance(d_val, (int, float, sy.Rational))
 
     print(f"D integration successful")
@@ -182,8 +183,9 @@ def test_performance_with_large_cycles():
         print(f"Cycle length: {p_obj.n()}")
 
         # Test basic operations
-        d_val = p_obj.d(g=3, h=2)
-        k_val = p_obj.k(g=3, h=2)
+        encoded_obj = p_obj.encode(g=3, h=2)
+        d_val = encoded_obj.d()
+        k_val = encoded_obj.k()
 
         print(f"d(3,2) = {d_val}")
         print(f"k(3,2) = {k_val}")
@@ -218,8 +220,8 @@ def test_edge_case_integration():
         assert p_obj.e() == d_obj.e()
 
         # Polynomial evaluations should match
-        p_d_val = p_obj.d(g=3, h=2)
-        d_val = d_obj.d(g=3, h=2)
+        p_d_val = p_obj.encode(g=3, h=2).d()
+        d_val = d_obj.encode(g=3, h=2).d()
         assert p_d_val == d_val
 
         # Test that P object's D() method returns equivalent D
@@ -238,13 +240,14 @@ def test_error_propagation():
     # Test that mathematical errors are handled consistently
     try:
         # Try operations that might fail
-        a_val = p_obj.a(g=3, h=2)
-        x_val = p_obj.x(g=3, h=2)
+        encoded_obj = p_obj.encode(g=3, h=2)
+        a_val = encoded_obj.a()
+        x_val = encoded_obj.x()
 
         # If they succeed, test relationships
-        d_val = p_obj.d(g=3, h=2)
-        k_val = p_obj.k(g=3, h=2)
-        f_val = p_obj.f(g=3, h=2)
+        d_val = encoded_obj.d()
+        k_val = encoded_obj.k()
+        f_val = encoded_obj.f()
 
         assert abs(a_val - d_val / f_val) < 1e-10
         assert abs(x_val - k_val / f_val) < 1e-10
@@ -298,8 +301,9 @@ def test_comprehensive_workflow():
         d_obj = obj.D()
 
         # Calculate polynomials
-        d_val = obj.d(g=3, h=2)
-        k_val = obj.k(g=3, h=2)
+        encoded_obj = obj.encode(g=3, h=2)
+        d_val = encoded_obj.d()
+        k_val = encoded_obj.k()
 
         print(f"d(3,2) = {d_val}")
         print(f"k(3,2) = {k_val}")
@@ -310,7 +314,7 @@ def test_comprehensive_workflow():
 
         # Test f polynomial
         try:
-            f_val = obj.f(g=3, h=2)
+            f_val = encoded_obj.f()
             print(f"f(3,2) = {f_val}")
         except Exception as e:
             print(f"f calculation failed: {e}")

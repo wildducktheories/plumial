@@ -132,21 +132,22 @@ class TestPClassEncoding:
         # SymPy returns sympy.Integer, not Python int
         assert isinstance(k_collatz, (int, float, sy.Integer, sy.Float))  # Numerical result
     
-    def test_legacy_compatibility(self):
-        """Test backward compatibility with legacy g,h parameters."""
+    def test_modern_encoding_approach(self):
+        """Test the modern encoding approach without legacy parameters."""
         p = P(281)
         
-        # Legacy API should still work
-        k_legacy = p.k(g=3, h=2)
-        d_legacy = p.d(g=3, h=2)
-        
-        # Should give same result as encoding
+        # Modern API using encoding
         p_encoded = p.encode(g=3, h=2)
         k_encoded = p_encoded.k()
         d_encoded = p_encoded.d()
         
-        assert k_legacy == k_encoded
-        assert d_legacy == d_encoded
+        # Verify the results are numerical
+        assert isinstance(k_encoded, (int, float, sy.Integer, sy.Float))
+        assert isinstance(d_encoded, (int, float, sy.Integer, sy.Float))
+
+        # Verify specific expected values
+        assert k_encoded == 25  # Known value for P(281) at g=3, h=2
+        assert d_encoded == 5   # Known value for P(281) at g=3, h=2
 
 
 class TestDClassEncoding:
@@ -314,25 +315,14 @@ class TestSymbolicIntegration:
 class TestUnpackingIntegration:
     """Test basis unpacking with legacy methods."""
     
-    def test_basis_tuple_unpacking(self):
-        """Test using basis.tuple() for positional unpacking."""
+    def test_modern_encoding_equivalence(self):
+        """Test that different encoding approaches give equivalent results."""
         p = P(281)
         basis = B.Collatz
         
-        # Should be equivalent
-        result1 = p.k(g=3, h=2)
-        result2 = p.k(*basis.tuple())
-        
-        assert result1 == result2
-    
-    def test_basis_dict_unpacking(self):
-        """Test using basis.dict() for keyword unpacking."""
-        p = P(281)
-        basis = B.Collatz
-        
-        # Should be equivalent
-        result1 = p.k(g=3, h=2)
-        result2 = p.k(**basis.dict())
+        # Different ways to encode should give same result
+        result1 = p.encode(basis).k()
+        result2 = p.encode(g=3, h=2).k()
         
         assert result1 == result2
 
