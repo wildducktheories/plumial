@@ -57,12 +57,10 @@ class _D:
     Internal class representing a d-polynomial d_p(g,h) = h^e - g^o.
 
     This class encapsulates the mathematical structure of a d-polynomial
-    used in Collatz sequence analysis. It provides methods for symbolic manipulation,
-    numerical evaluation, GCD computation, and polynomial factorization.
+    used in Collatz sequence analysis. It provides methods for symbolic manipulation
+    and numerical evaluation.
 
-    The class maintains the fundamental parameters n, o, e and provides derived
-    quantities q (quotient) and r (remainder) from the division e/o, which are
-    important for certain mathematical operations.
+    The class maintains the fundamental parameters n, o, e for the polynomial form h^e - g^o.
 
     This class should not be instantiated directly. Use the D() factory function instead.
 
@@ -70,16 +68,12 @@ class _D:
         - n: total number of bits (path length)
         - o: number of odd bits (3x+1 operations)
         - e: number of even bits (halving operations), where e = n - o
-        - q: quotient of e/o division (⌊e/o⌋)
-        - r: remainder of e/o division (e mod o)
         - The polynomial form: h^e - g^o
 
     Attributes:
         _n: Total number of bits
         _o: Number of odd bits
         _e: Number of even bits (computed as n - o)
-        _q: Quotient from e/o division
-        _r: Remainder from e/o division
         _expr: Cached symbolic expression
     """
 
@@ -103,14 +97,6 @@ class _D:
         self._e = n - o
         self._basis = basis if basis is not None else B.Symbolic
 
-        # Quotient and remainder for e/o division
-        if o != 0:
-            self._q = self._e // o
-            self._r = self._e % o
-        else:
-            self._q = 0
-            self._r = 0
-
         # Cached symbolic expression
         self._expr = None
 
@@ -126,13 +112,6 @@ class _D:
         """Return number of even bits."""
         return self._e
 
-    def q(self) -> int:
-        """Return quotient of e/o division."""
-        return self._q
-
-    def r(self) -> int:
-        """Return remainder of e/o division."""
-        return self._r
 
     def basis(self) -> Basis:
         """Return the basis of this encoding."""
@@ -214,90 +193,9 @@ class _D:
 
         return result
 
-    def gcd(self, g: OptionalNumeric = None) -> GCDResult:
-        """
-        Calculate GCD of 2^e and g^o.
 
-        This method computes the greatest common divisor of the powers appearing
-        in the d-polynomial. When g is specified numerically, it returns
-        the integer GCD. When g is symbolic, it returns a symbolic GCD expression.
 
-        Args:
-            g: Value to substitute for g (default: keep symbolic)
 
-        Returns:
-            GCD as integer (if g provided) or symbolic expression
-
-        Mathematical Background:
-            gcd(2^e, g^o) is important for understanding the divisibility
-            properties of the d-polynomial and potential cycle detection.
-
-        Examples:
-            >>> d = D(133)  # e=5, o=2
-            >>> d.gcd(g=3)  # gcd(2^5, 3^2) = gcd(32, 9) = 1
-            1
-        """
-        if g is None:
-            return sy.Function("gcd")(2**self._e, g_sym**self._o)
-        else:
-            return math.gcd(2**self._e, g**self._o)
-
-    def g_vector(
-        self, g: Optional[Union[int, float]] = None, matrix: bool = False
-    ) -> sy.Matrix:
-        """
-        Generate vector of powers of g.
-
-        Args:
-            g: Value to substitute for g (default: keep symbolic)
-            matrix: If True, return as diagonal matrix
-
-        Returns:
-            SymPy Matrix representing g^i for i in range(o)
-        """
-        if g is None:
-            g = g_sym
-
-        v = [g**i for i in range(self._o)]
-
-        if matrix:
-            v = sy.diag(*v)
-        else:
-            v = sy.Matrix(v)
-
-        return v
-
-    def factor(self) -> FactorResult:
-        """
-        Return factored form of the d-polynomial.
-
-        This method applies SymPy's factorization capabilities to factor the
-        d-polynomial d_p(g,h) = h^e - g^o. Factorization can reveal important
-        mathematical structures and common factors that are useful for analysis.
-
-        Returns:
-            Factored symbolic expression
-
-        Mathematical Background:
-            Factoring h^e - g^o can reveal patterns like:
-            - Difference of squares: a^2 - b^2 = (a-b)(a+b)
-            - Difference of powers: a^n - b^n with various factorizations
-            - Common polynomial factors that indicate mathematical relationships
-
-        Examples:
-            >>> d = D_from_counts(n=4, o=2)  # h^2 - g^2
-            >>> d.factor()  # Returns (h - g)*(h + g)
-        """
-        return sy.factor(self.as_expr())
-
-    def expand(self) -> sy.Expr:
-        """
-        Return expanded form of the d-polynomial.
-
-        Returns:
-            Expanded symbolic expression
-        """
-        return sy.expand(self.as_expr())
 
     def __str__(self) -> str:
         """String representation showing the polynomial."""

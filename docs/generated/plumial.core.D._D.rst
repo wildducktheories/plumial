@@ -19,14 +19,8 @@
       _D.d
       _D.e
       _D.encode
-      _D.expand
-      _D.factor
-      _D.g_vector
-      _D.gcd
       _D.n
       _D.o
-      _D.q
-      _D.r
    
    
 

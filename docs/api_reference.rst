@@ -108,15 +108,9 @@ The ``D()`` function returns a d-polynomial object with the following methods:
    generated/plumial.core.D._D.d
    generated/plumial.core.D._D.encode
    generated/plumial.core.D._D.as_expr
-   generated/plumial.core.D._D.factor
-   generated/plumial.core.D._D.expand
-   generated/plumial.core.D._D.gcd
-   generated/plumial.core.D._D.g_vector
    generated/plumial.core.D._D.n
    generated/plumial.core.D._D.o
    generated/plumial.core.D._D.e
-   generated/plumial.core.D._D.q
-   generated/plumial.core.D._D.r
    generated/plumial.core.D._D.basis
 
 .. autosummary::
@@ -125,19 +119,13 @@ The ``D()`` function returns a d-polynomial object with the following methods:
    plumial.core.D._D.d
    plumial.core.D._D.encode
    plumial.core.D._D.as_expr
-   plumial.core.D._D.factor
-   plumial.core.D._D.expand
-   plumial.core.D._D.gcd
-   plumial.core.D._D.g_vector
    plumial.core.D._D.n
    plumial.core.D._D.o
    plumial.core.D._D.e
-   plumial.core.D._D.q
-   plumial.core.D._D.r
    plumial.core.D._D.basis
 
 .. autoclass:: plumial.core.D._D
-   :members: d, encode, as_expr, factor, expand, gcd, g_vector, n, o, e, q, r, basis
+   :members: d, encode, as_expr, n, o, e, basis
    :undoc-members:
    :show-inheritance:
 
