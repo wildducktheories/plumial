@@ -6,12 +6,34 @@ This section provides a complete reference for all classes, functions, and modul
 Core Classes
 ------------
 
-.. automodule:: plumial.core.polynomials
+.. automodule:: plumial.core
    :members:
    :undoc-members:
    :show-inheritance:
 
+Core Implementation Details
+---------------------------
+
+P Class (Path Polynomials)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: plumial.core.P
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+D Class (Difference Polynomials)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. automodule:: plumial.core.D
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Basis System
+~~~~~~~~~~~~
+
+.. automodule:: plumial.core.basis
    :members:
    :undoc-members:
    :show-inheritance:
