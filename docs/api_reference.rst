@@ -17,7 +17,17 @@ Core Implementation Details
 P Class (Path Polynomials)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: plumial.core.P
+Factory Function
+^^^^^^^^^^^^^^^^
+
+.. autofunction:: plumial.core.P.P
+
+Path Object Methods
+^^^^^^^^^^^^^^^^^^^
+
+The ``P()`` function returns a path object with the following methods:
+
+.. autoclass:: plumial.core.P._P
    :members:
    :undoc-members:
    :show-inheritance:
@@ -25,7 +35,17 @@ P Class (Path Polynomials)
 D Class (Difference Polynomials)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: plumial.core.D
+Factory Function
+^^^^^^^^^^^^^^^^
+
+.. autofunction:: plumial.core.D.D
+
+D Object Methods
+^^^^^^^^^^^^^^^^
+
+The ``D()`` function returns a d-polynomial object with the following methods:
+
+.. autoclass:: plumial.core.D._D
    :members:
    :undoc-members:
    :show-inheritance:
