@@ -30,7 +30,7 @@ This mesmerizing animation reveals something remarkable: **p=281** represents a 
 
 ## 🔗 Mathematical Foundations
 
-**[📖 Read the Complete Mathematical Foundations](docs/mathematical_foundations.html)**
+**[📖 Read the Complete Mathematical Foundations](https://wildducktheories.github.io/plumial/mathematical_foundations.html)**
 
 Dive deep into the theoretical framework that powers Plumial:
 - **UV-Polynomial Theory**: Bijection between natural numbers and algebraic forms
